@@ -32,7 +32,7 @@ function Nav({ className, links, ...props }: NavProps) {
           <div className="h-8 w-8 rounded-lg bg-navy-950 flex items-center justify-center">
             <div className="h-4 w-4 rounded-sm bg-yellow-500" />
           </div>
-          <span className="font-display text-xl font-bold text-navy-950">T&S Power</span>
+          <span className="font-display text-xl font-bold text-navy-950">T&S Power Grid</span>
         </Link>
 
         {/* Desktop Links */}
