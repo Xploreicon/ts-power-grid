@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
 import { useWallet } from "@/lib/hooks/host/useWallet";
 import { useUser } from "@/lib/hooks/useUser";
 import { Button, Input, Skeleton } from "@/components/ui";
@@ -53,12 +52,16 @@ export default function WithdrawPage() {
 
     setSubmitting(true);
     try {
-      const supabase = createClient();
-      const { error } = await supabase.rpc("initiate_withdrawal", {
-        p_user_id: profile.id,
-        p_amount_kobo: amountKobo,
+      const res = await fetch("/api/payments/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount_kobo: amountKobo }),
       });
-      if (error) throw error;
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Withdrawal failed");
+        return;
+      }
 
       queryClient.invalidateQueries({ queryKey: ["wallet", profile.id] });
       queryClient.invalidateQueries({
