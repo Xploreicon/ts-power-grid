@@ -51,7 +51,7 @@ export function makeFakeSupabase(): FakeSupabase {
           return { data: null, error: null };
         }),
       }),
-      select: (_cols?: string) => {
+      select: () => {
         const filter: Record<string, unknown> = {};
         const chain = {
           eq(col: string, val: unknown) {

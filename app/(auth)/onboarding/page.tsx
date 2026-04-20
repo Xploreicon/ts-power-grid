@@ -410,7 +410,7 @@ function StepKyc({ onNext }: { onNext: () => void }) {
           return;
         }
         setState((s) => ({ ...s, uploading: false, url: path }));
-      } catch (err) {
+      } catch {
         setState((s) => ({ ...s, uploading: false, error: "Upload failed" }));
       }
     },

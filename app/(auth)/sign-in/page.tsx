@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@/components/ui";
-import { toast } from "@/components/ui/toast";
 
 export default function SignInPage() {
   const router = useRouter();

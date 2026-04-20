@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/hooks/useUser";
 import { useConnections } from "@/lib/hooks/host/useConnections";
-import { Button, Input } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils/cn";
 
 const CATEGORIES = [
