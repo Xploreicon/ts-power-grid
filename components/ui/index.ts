@@ -10,3 +10,5 @@ export * from "./toast";
 export * from "./nav";
 export * from "./bottom-nav";
 export * from "./dialog";
+export * from "./otp-input";
+export * from "./progress-steps";

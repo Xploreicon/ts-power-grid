@@ -1,14 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { CheckCircle2 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase/client";
+import type { PathInterest } from "@/lib/supabase/types";
 import { toast } from "@/components/ui/toast";
+
+const pathInterestMap: Record<"Full Stack" | "Upgrade" | "Either", PathInterest> = {
+  "Full Stack": "full_stack",
+  Upgrade: "upgrade",
+  Either: "either",
+};
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -27,6 +35,7 @@ export function LeadForm({ onSuccess }: { onSuccess?: () => void }) {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -38,13 +47,21 @@ export function LeadForm({ onSuccess }: { onSuccess?: () => void }) {
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     try {
+      if (!supabase) {
+        console.warn("Supabase not configured — lead captured locally only.", data);
+        toast.info("Consultation received", "We'll follow up soon.");
+        setIsSuccess(true);
+        if (onSuccess) setTimeout(onSuccess, 2000);
+        return;
+      }
+
       const { error } = await supabase.from("leads").insert([
         {
           name: data.name,
           phone: data.phone,
           email: data.email,
           address: data.address,
-          path_interest: data.path,
+          path_interest: pathInterestMap[data.path],
         },
       ]);
 
@@ -87,13 +104,14 @@ export function LeadForm({ onSuccess }: { onSuccess?: () => void }) {
         <Input
           label="Phone Number"
           placeholder="812 000 0000"
-          prefix="+234"
+          variant="phone"
           error={errors.phone?.message}
           {...register("phone")}
         />
         <Input
           label="Email Address"
           placeholder="hello@example.com"
+          type="email"
           error={errors.email?.message}
           {...register("email")}
         />
@@ -106,30 +124,41 @@ export function LeadForm({ onSuccess }: { onSuccess?: () => void }) {
       />
       
       <div className="space-y-1.5">
-        <label className="text-sm font-semibold text-navy-900 font-sans">
+        <span className="block text-sm font-semibold text-navy-900 font-sans">
           Preferred Path
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {["Full Stack", "Upgrade", "Either"].map((p) => (
-            <label
-              key={p}
-              className={`
-                flex items-center justify-center px-3 py-2 border rounded-lg text-sm cursor-pointer transition-all
-                ${errors.path ? 'border-red-500' : 'border-navy-100'}
-                peer-checked:bg-navy-900 peer-checked:text-white
-                hover:bg-navy-50
-              `}
-            >
-              <input
-                type="radio"
-                value={p}
-                className="sr-only peer"
-                {...register("path")}
-              />
-              {p}
-            </label>
-          ))}
-        </div>
+        </span>
+        <Controller
+          control={control}
+          name="path"
+          render={({ field }) => (
+            <div role="radiogroup" className="grid grid-cols-3 gap-2">
+              {(["Full Stack", "Upgrade", "Either"] as const).map((p) => {
+                const selected = field.value === p;
+                return (
+                  <button
+                    type="button"
+                    key={p}
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => field.onChange(p)}
+                    className={cn(
+                      "flex items-center justify-center px-3 py-2 border rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-900",
+                      selected
+                        ? "bg-navy-900 text-white border-navy-900"
+                        : "bg-white text-navy-900 border-navy-100 hover:bg-navy-50",
+                      errors.path && !selected && "border-red-500"
+                    )}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        />
+        {errors.path && (
+          <p className="text-xs font-medium text-red-500">{errors.path.message}</p>
+        )}
       </div>
 
       <Button type="submit" className="w-full h-12 text-lg" loading={isSubmitting}>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { Providers } from "@/components/providers";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -50,6 +51,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0A2540",
+  viewportFit: "cover",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
@@ -62,8 +66,15 @@ export default function RootLayout({
       <body
         className={`${fraunces.variable} ${jakarta.variable} ${jetbrainsMono.variable} font-sans bg-offwhite text-navy-900 antialiased`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
         <Toaster position="top-center" richColors />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});})}`,
+          }}
+        />
       </body>
     </html>
   );

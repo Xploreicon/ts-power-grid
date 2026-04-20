@@ -7,7 +7,7 @@ import { Home, Users, Wallet, LifeBuoy } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 const navigation = [
-  { name: "Home", href: "/host", icon: Home },
+  { name: "Home", href: "/host/home", icon: Home },
   { name: "Neighbors", href: "/host/neighbors", icon: Users },
   { name: "Earnings", href: "/host/earnings", icon: Wallet },
   { name: "Support", href: "/host/support", icon: LifeBuoy },
