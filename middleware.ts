@@ -2,7 +2,15 @@ import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  try {
+    return await updateSession(request);
+  } catch (err) {
+    // Never 500 the whole app from middleware. Log and fall through so the
+    // page renders (auth guards will still redirect if session is missing).
+    console.error("[middleware] updateSession failed:", err);
+    const { NextResponse } = await import("next/server");
+    return NextResponse.next({ request });
+  }
 }
 
 // Match everything except Next internals and static assets.
