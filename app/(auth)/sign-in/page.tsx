@@ -43,9 +43,10 @@ export default function SignInPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-display font-bold text-navy-950">Welcome back</h1>
+        <h1 className="text-3xl font-display font-bold text-navy-950">Sign in or create account</h1>
         <p className="text-navy-600 font-sans">
           Enter your Nigerian phone number. We&apos;ll send a one-time code.
+          New users are guided through onboarding after verification.
         </p>
       </div>
 
@@ -71,6 +72,14 @@ export default function SignInPage() {
           Send OTP
         </Button>
       </form>
+
+      <div className="rounded-[12px] border border-navy-100 bg-offwhite p-4 text-sm text-navy-700 font-sans">
+        <p className="font-semibold text-navy-900">New to T&amp;S Power Grid?</p>
+        <p className="mt-1 text-navy-600">
+          Enter your phone number above to create an account. After verifying the
+          code, we&apos;ll walk you through host onboarding (site, bank, KYC).
+        </p>
+      </div>
 
       <p className="text-center text-sm text-navy-400 font-sans">
         Admin?{" "}
