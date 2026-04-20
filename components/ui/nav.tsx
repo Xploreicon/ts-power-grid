@@ -13,9 +13,11 @@ interface NavLink {
 
 interface NavProps extends React.HTMLAttributes<HTMLElement> {
   links: NavLink[];
+  actions?: React.ReactNode;
+  mobileActions?: React.ReactNode;
 }
 
-function Nav({ className, links, ...props }: NavProps) {
+function Nav({ className, links, actions, mobileActions, ...props }: NavProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -50,8 +52,12 @@ function Nav({ className, links, ...props }: NavProps) {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex md:items-center md:space-x-4">
-          <Button variant="ghost" size="sm">Log in</Button>
-          <Button variant="primary" size="sm">Get Started</Button>
+          {actions ?? (
+            <>
+              <Button variant="ghost" size="sm">Log in</Button>
+              <Button variant="primary" size="sm">Get Started</Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Toggle */}
@@ -81,8 +87,12 @@ function Nav({ className, links, ...props }: NavProps) {
             ))}
           </div>
           <div className="flex flex-col space-y-2 pt-2 border-t border-navy-100">
-            <Button variant="ghost" className="w-full justify-start">Log in</Button>
-            <Button variant="primary" className="w-full">Get Started</Button>
+            {mobileActions ?? actions ?? (
+              <>
+                <Button variant="ghost" className="w-full justify-start">Log in</Button>
+                <Button variant="primary" className="w-full">Get Started</Button>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -40,6 +40,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, loading = false, leftIcon, rightIcon, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
 
+    // When asChild, Slot requires a single React element child — pass children only.
+    const inner = asChild ? (
+      children
+    ) : (
+      <>
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {!loading && leftIcon && <span className="mr-2">{leftIcon}</span>}
+        {children}
+        {!loading && rightIcon && <span className="ml-2">{rightIcon}</span>}
+      </>
+    );
+
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
@@ -47,10 +59,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={loading || props.disabled}
         {...props}
       >
-        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {!loading && leftIcon && <span className="mr-2">{leftIcon}</span>}
-        {children}
-        {!loading && rightIcon && <span className="ml-2">{rightIcon}</span>}
+        {inner}
       </Comp>
     );
   }

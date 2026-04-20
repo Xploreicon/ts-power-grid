@@ -1,21 +1,31 @@
 {
   "name": "T&S Power Grid",
   "short_name": "T&S",
-  "description": "Peer-to-peer power-sharing platform for Nigeria",
-  "start_url": "/",
+  "description": "Nigeria's peer-to-peer power sharing platform for solar hosts.",
+  "start_url": "/host/home",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#FAFAF7",
   "theme_color": "#0A2540",
+  "categories": ["utilities", "finance"],
   "icons": [
+    { "src": "/icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "shortcuts": [
     {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "name": "My Earnings",
+      "short_name": "Earnings",
+      "url": "/host/earnings",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "name": "My Neighbors",
+      "short_name": "Neighbors",
+      "url": "/host/neighbors",
+      "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

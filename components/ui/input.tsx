@@ -9,10 +9,15 @@ export interface InputProps
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   prefix?: string;
+  variant?: "default" | "currency" | "phone";
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, hint, error, leftIcon, rightIcon, prefix, ...props }, ref) => {
+  ({ className, type, label, hint, error, leftIcon, rightIcon, prefix, variant = "default", ...props }, ref) => {
+    const resolvedPrefix =
+      prefix ?? (variant === "currency" ? "₦" : variant === "phone" ? "+234" : undefined);
+    const resolvedType = type ?? (variant === "phone" ? "tel" : variant === "currency" ? "text" : undefined);
+    const resolvedInputMode = props.inputMode ?? (variant === "phone" ? "tel" : variant === "currency" ? "numeric" : undefined);
     return (
       <div className="w-full space-y-1.5">
         {label && (
@@ -26,16 +31,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               {leftIcon}
             </div>
           )}
-          {prefix && !leftIcon && (
+          {resolvedPrefix && !leftIcon && (
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-navy-400 font-mono">
-              {prefix}
+              {resolvedPrefix}
             </div>
           )}
           <input
-            type={type}
+            type={resolvedType}
+            inputMode={resolvedInputMode}
             className={cn(
               "flex h-11 w-full rounded-[12px] border border-navy-100 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-navy-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50 transition-all font-sans",
-              leftIcon || prefix ? "pl-12" : "pl-4",
+              leftIcon || resolvedPrefix ? "pl-12" : "pl-4",
               rightIcon ? "pr-10" : "pr-4",
               error ? "border-red-500 focus-visible:ring-red-500" : "border-navy-100",
               className

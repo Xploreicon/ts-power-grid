@@ -41,9 +41,10 @@ function MarketingPageContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
     <div className="min-h-screen bg-offwhite selection:bg-yellow-200">
       {/* 1. Navigation */}
-      <Nav 
+      <Nav
         links={[
           { label: "How it works", href: "#how-it-works" },
           { label: "Paths", href: "#paths" },
@@ -51,6 +52,26 @@ function MarketingPageContent() {
           { label: "For Business", href: "#business" },
         ]}
         className="fixed border-b-navy-100/50"
+        actions={
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/sign-in">Sign in</Link>
+            </Button>
+            <DialogTrigger asChild>
+              <Button variant="primary" size="sm">Book consultation</Button>
+            </DialogTrigger>
+          </div>
+        }
+        mobileActions={
+          <div className="flex flex-col gap-2 w-full">
+            <Button asChild variant="secondary" className="w-full">
+              <Link href="/sign-in">Sign in / Create account</Link>
+            </Button>
+            <DialogTrigger asChild>
+              <Button variant="primary" className="w-full">Book consultation</Button>
+            </DialogTrigger>
+          </div>
+        }
       />
 
       <main>
@@ -63,32 +84,20 @@ function MarketingPageContent() {
                   Now onboarding Lagos pilot hosts
                 </Badge>
                 <h1 className="text-5xl lg:text-7xl font-display font-bold text-navy-950 leading-[1.1] tracking-tight">
-                  Be your own NEPA. <br />
-                  <span className="text-navy-900">Sell power to your </span>
-                  <span className="italic text-yellow-500">neighbors.</span>
+                  Be your own <span className="italic text-yellow-500">NEPA.</span> <br />
+                  <span className="text-navy-900">Sell power to your neighbors.</span>
                 </h1>
                 <p className="text-xl text-navy-700 font-sans max-w-lg leading-relaxed">
                   T&S Power Grid turns your Excess Solar capacity into a reliable monthly income. Join Nigeria&apos;s first peer-to-peer micro-utility network.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-yellow-500/20">
-                        Become a host
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
-                      <DialogHeader>
-                        <DialogTitle className="text-3xl font-display">Book Grid Consultation</DialogTitle>
-                        <DialogDescription className="text-base">
-                          Fill in your details below. Our specialists will audit your site and estimate your monthly earnings.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <LeadForm onSuccess={() => setIsModalOpen(false)} />
-                    </DialogContent>
-                  </Dialog>
-                  <Button variant="secondary" size="lg" className="h-14 px-8 text-lg font-bold">
-                    See how it works
+                  <DialogTrigger asChild>
+                    <Button size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-yellow-500/20">
+                      Become a host
+                    </Button>
+                  </DialogTrigger>
+                  <Button asChild variant="secondary" size="lg" className="h-14 px-8 text-lg font-bold">
+                    <a href="#how-it-works">See how it works</a>
                   </Button>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-4 border-t border-navy-100">
@@ -233,9 +242,11 @@ function MarketingPageContent() {
                     ))}
                   </ul>
                 </div>
-                <Button className="w-full h-14 bg-yellow-500 text-navy-950 hover:bg-yellow-400 font-bold">
-                  Book Full Audit
-                </Button>
+                <DialogTrigger asChild>
+                  <Button className="w-full h-14 bg-yellow-500 text-navy-950 hover:bg-yellow-400 font-bold">
+                    Book Full Audit
+                  </Button>
+                </DialogTrigger>
               </FadeIn>
 
               <FadeIn delay={0.2} className="bg-yellow-500 rounded-[32px] p-8 lg:p-12 text-navy-950 flex flex-col justify-between relative overflow-hidden">
@@ -268,9 +279,11 @@ function MarketingPageContent() {
                     ))}
                   </ul>
                 </div>
-                <Button className="w-full h-14 bg-navy-900 text-white hover:bg-navy-950 font-bold">
-                  Check Compatibility
-                </Button>
+                <DialogTrigger asChild>
+                  <Button className="w-full h-14 bg-navy-900 text-white hover:bg-navy-950 font-bold">
+                    Check Compatibility
+                  </Button>
+                </DialogTrigger>
               </FadeIn>
             </div>
           </div>
@@ -339,7 +352,9 @@ function MarketingPageContent() {
                 <Badge variant="navy" className="bg-navy-800 text-yellow-500 border-navy-700">ENTERPRISE SOLUTIONS</Badge>
                 <h2 className="text-4xl lg:text-6xl font-display font-bold">For estates, FMCGs, and telcos</h2>
               </FadeIn>
-              <Button size="lg" variant="primary">Partner with us</Button>
+              <DialogTrigger asChild>
+                <Button size="lg" variant="primary">Partner with us</Button>
+              </DialogTrigger>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -370,9 +385,11 @@ function MarketingPageContent() {
                 We are currently onboarding 50 pilot hosts across Lekki, Victoria Island, and Ikeja. Secure your spot in the energy revolution.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <Button size="lg" className="h-14 px-10 bg-navy-900 text-white hover:bg-navy-950 font-bold">
-                    Book consultation
-                 </Button>
+                 <DialogTrigger asChild>
+                   <Button size="lg" className="h-14 px-10 bg-navy-900 text-white hover:bg-navy-950 font-bold">
+                      Book consultation
+                   </Button>
+                 </DialogTrigger>
                  <Button size="lg" variant="secondary" className="h-14 px-10 border-navy-950 text-navy-950 hover:bg-navy-950/5 font-bold">
                     Download pitch deck
                  </Button>
@@ -439,5 +456,15 @@ function MarketingPageContent() {
         </footer>
       </main>
     </div>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-3xl font-display">Book Grid Consultation</DialogTitle>
+          <DialogDescription className="text-base">
+            Fill in your details below. Our specialists will audit your site and estimate your monthly earnings.
+          </DialogDescription>
+        </DialogHeader>
+        <LeadForm onSuccess={() => setIsModalOpen(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }
