@@ -72,7 +72,12 @@ export default function RootLayout({
         <Toaster position="top-center" richColors />
         <script
           dangerouslySetInnerHTML={{
-            __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});})}`,
+            // Only register the SW in production. On localhost it causes
+            // cache-first stale CSS/JS after rebuilds. Also proactively
+            // unregister any leftover SW registered in a previous dev
+            // session, so existing tabs recover without a manual
+            // "Clear site data" dance.
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',function(){var isLocal=location.hostname==='localhost'||location.hostname==='127.0.0.1';if(isLocal){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});if(window.caches){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){});}}else{navigator.serviceWorker.register('/sw.js').catch(function(){});}})}`,
           }}
         />
       </body>
