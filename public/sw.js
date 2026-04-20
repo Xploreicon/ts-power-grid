@@ -1,7 +1,7 @@
 // T&S Power Grid Service Worker
 // Strategy: app shell (cache-first for static assets, network-first for API/data)
 
-const CACHE_NAME = "ts-grid-v2";
+const CACHE_NAME = "ts-grid-v3";
 const APP_SHELL = [
   "/",
   "/host/home",
