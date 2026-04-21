@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AUDIT_EVENT, LOW_BALANCE_THRESHOLD_KOBO } from "./config";
 import { issueReconnectCommand } from "./disconnect";
+import { sendReconnectConfirmation } from "@/lib/whatsapp/proactive";
 
 /**
  * Wallet top-ups. Idempotent on Paystack reference — the reference is
@@ -99,6 +100,13 @@ export async function processTopup(
     payload.new_balance_kobo > LOW_BALANCE_THRESHOLD_KOBO
   ) {
     reconnected = await reconnectAllNeighborMeters(supabase, topup.userId);
+    if (reconnected) {
+      await sendReconnectConfirmation(supabase, topup.userId, {
+        newBalanceKobo: Number(payload.new_balance_kobo),
+      }).catch((err) => {
+        console.error("[topup] reconnect whatsapp failed:", err);
+      });
+    }
   }
 
   return {

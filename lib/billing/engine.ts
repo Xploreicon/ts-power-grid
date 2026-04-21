@@ -8,6 +8,10 @@ import {
   AUDIT_EVENT,
 } from "./config";
 import { issueDisconnectCommand } from "./disconnect";
+import {
+  sendDisconnectNotification,
+  sendLowBalanceWarning,
+} from "@/lib/whatsapp/proactive";
 
 /**
  * Billing engine — single public entry point `processReading()` wraps the
@@ -145,6 +149,9 @@ export async function processReading(
       new_balance_kobo: result.newBalanceKobo,
       connection_id: result.connectionId,
     });
+    await notifyDisconnectViaWhatsApp(supabase, result).catch((err) => {
+      console.error("[billing] disconnect whatsapp notify failed:", err);
+    });
   } else if (result.action === "low_balance") {
     await notifyLowBalance(supabase, reading.meterId, result);
   }
@@ -188,6 +195,27 @@ async function notifyLowBalance(
     connection_id: result.connectionId,
     details: { balance_kobo: result.newBalanceKobo },
   });
+
+  // Parallel WhatsApp warning — non-blocking.
+  await sendLowBalanceWarning(supabase, conn.neighbor_id, {
+    balanceKobo: result.newBalanceKobo ?? 0,
+  }).catch((err) => {
+    console.error("[billing] low-balance whatsapp failed:", err);
+  });
+}
+
+async function notifyDisconnectViaWhatsApp(
+  supabase: SupabaseClient,
+  result: ReadingResult,
+): Promise<void> {
+  if (!result.connectionId) return;
+  const { data: conn } = await supabase
+    .from("connections")
+    .select("neighbor_id")
+    .eq("id", result.connectionId)
+    .maybeSingle();
+  if (!conn?.neighbor_id) return;
+  await sendDisconnectNotification(supabase, conn.neighbor_id);
 }
 
 // ---------------------------------------------------------------------------
