@@ -2,22 +2,47 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail } from "lucide-react";
+import Link from "next/link";
 import { Button, Input } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils/cn";
 
 type Method = "phone" | "email";
+
+async function routeByProfile(
+  supabase: ReturnType<typeof createClient>,
+  router: ReturnType<typeof useRouter>,
+) {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    router.replace("/sign-in");
+    return;
+  }
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, full_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile?.full_name) router.replace("/onboarding");
+  else if (profile.role === "admin" || profile.role === "super_admin")
+    router.replace("/admin");
+  else router.replace("/host/home");
+}
 
 export default function SignInPage() {
   const router = useRouter();
   const [method, setMethod] = useState<Method>("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [emailSent, setEmailSent] = useState<string | null>(null);
 
+  /* ── Phone + OTP (primary) ─────────────────────────────────── */
   const handleSendPhone = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -47,7 +72,8 @@ export default function SignInPage() {
     }
   };
 
-  const handleSendEmail = async (e: React.FormEvent) => {
+  /* ── Email + Password (secondary) ──────────────────────────── */
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     const trimmed = email.trim().toLowerCase();
@@ -55,63 +81,29 @@ export default function SignInPage() {
       setError("Enter a valid email address");
       return;
     }
+    if (!password) {
+      setError("Password is required");
+      return;
+    }
     setLoading(true);
     try {
       const supabase = createClient();
-      const origin =
-        typeof window !== "undefined" ? window.location.origin : "";
-      const { error: otpErr } = await supabase.auth.signInWithOtp({
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
         email: trimmed,
-        options: {
-          shouldCreateUser: true,
-          emailRedirectTo: `${origin}/auth/callback`,
-        },
+        password,
       });
-      if (otpErr) {
-        setError(otpErr.message);
+      if (signInErr) {
+        setError(signInErr.message);
         return;
       }
-      setEmailSent(trimmed);
+      toast.success("Signed in!", "Redirecting…");
+      await routeByProfile(supabase, router);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-
-  if (emailSent) {
-    return (
-      <div className="space-y-8">
-        <div className="h-14 w-14 rounded-full bg-green-50 flex items-center justify-center">
-          <Mail className="h-7 w-7 text-green-600" />
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-display font-bold text-navy-950">
-            Check your email
-          </h1>
-          <p className="text-navy-600 font-sans">
-            We sent a sign-in link to{" "}
-            <span className="font-semibold text-navy-900">{emailSent}</span>.
-            Click the link to continue — it expires in 1 hour.
-          </p>
-        </div>
-        <div className="rounded-[12px] border border-navy-100 bg-offwhite p-4 text-sm text-navy-600 font-sans">
-          No email in 2 minutes? Check spam, or try again with your phone
-          number.
-        </div>
-        <Button
-          variant="secondary"
-          className="w-full"
-          onClick={() => {
-            setEmailSent(null);
-            setEmail("");
-          }}
-        >
-          Use a different email
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-8">
@@ -120,8 +112,8 @@ export default function SignInPage() {
           Sign in or create account
         </h1>
         <p className="text-navy-600 font-sans">
-          Choose how you&apos;d like to receive your sign-in link. New users
-          are guided through onboarding after verification.
+          Use your phone number (primary) or email &amp; password to sign in.
+          New users are guided through onboarding after verification.
         </p>
       </div>
 
@@ -180,35 +172,61 @@ export default function SignInPage() {
           </Button>
         </form>
       ) : (
-        <form onSubmit={handleSendEmail} className="space-y-6">
+        <form onSubmit={handleEmailSignIn} className="space-y-5">
           <Input
             label="Email Address"
             type="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={error}
-            hint="We'll email you a secure sign-in link"
             autoComplete="email"
             disabled={loading}
           />
+          <div className="space-y-1.5">
+            <label className="text-sm font-semibold text-navy-900 font-sans">
+              Password
+            </label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              className="flex h-11 w-full rounded-[12px] border border-navy-200 bg-white px-4 py-2 text-sm text-navy-950 placeholder:text-navy-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-0 transition-all font-sans"
+            />
+          </div>
+          {error && (
+            <p className="text-sm font-medium text-red-500">{error}</p>
+          )}
           <Button
             type="submit"
             size="lg"
             className="w-full h-14 text-base font-bold"
             loading={loading}
           >
-            Send sign-in link
+            Sign in
           </Button>
+          <p className="text-center text-sm text-navy-500 font-sans">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/sign-up"
+              className="text-navy-700 font-semibold underline underline-offset-4"
+            >
+              Create account
+            </Link>
+          </p>
         </form>
       )}
 
       <div className="rounded-[12px] border border-navy-100 bg-offwhite p-4 text-sm text-navy-700 font-sans">
         <p className="font-semibold text-navy-900">New to T&amp;S Power Grid?</p>
         <p className="mt-1 text-navy-600">
-          Enter your phone number or email above to create an account. After
-          verification, we&apos;ll walk you through host onboarding (site,
-          bank, KYC).
+          Enter your phone number above to create an account, or{" "}
+          <Link href="/sign-up" className="underline underline-offset-4">
+            sign up with email
+          </Link>
+          . After verification, we&apos;ll walk you through host onboarding
+          (site, bank, KYC).
         </p>
       </div>
 

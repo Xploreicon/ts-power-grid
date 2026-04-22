@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AUDIT_EVENT } from "./config";
+import { dispatchNotification } from "@/lib/notifications/dispatcher";
 
 /**
  * MQTT command dispatch is implemented in Prompt 15. Until then these
@@ -46,6 +48,23 @@ export async function issueDisconnectCommand(
     details: { reason, issued_at: issuedAt, acknowledged, ...extra },
   });
 
+  // Wire up notification
+  const { data: conn } = await supabase
+    .from("connections")
+    .select("neighbor_id, host_id, profiles!neighbor_id(full_name)")
+    .eq("meter_id", meterId)
+    .single();
+
+  if (conn) {
+    // 1. To neighbor
+    await dispatchNotification(conn.neighbor_id, "disconnect_notification", {}).catch(console.error);
+    
+    // 2. To host
+    await dispatchNotification(conn.host_id, "neighbor_disconnected", {
+      neighborName: (conn.profiles as any)?.full_name || "A neighbor",
+    }).catch(console.error);
+  }
+
   return { meterId, issuedAt, acknowledged };
 }
 
@@ -74,6 +93,17 @@ export async function issueReconnectCommand(
     meter_id: meterId,
     details: { reason, issued_at: issuedAt, acknowledged, ...extra },
   });
+
+  // Wire up notification
+  const { data: conn } = await supabase
+    .from("connections")
+    .select("neighbor_id")
+    .eq("meter_id", meterId)
+    .single();
+
+  if (conn?.neighbor_id) {
+    await dispatchNotification(conn.neighbor_id, "reconnect_confirmation", {}).catch(console.error);
+  }
 
   return { meterId, issuedAt, acknowledged };
 }

@@ -315,6 +315,15 @@ export default function SettingsPage() {
           </span>
           <ChevronRight className="h-4 w-4 text-navy-300" />
         </button>
+        <button
+          onClick={() => router.push("/host/settings/notifications")}
+          className="w-full flex items-center justify-between bg-white rounded-[12px] border border-navy-100 p-4 hover:border-navy-200 transition-colors"
+        >
+          <span className="text-sm font-medium text-navy-900">
+            Notification Preferences
+          </span>
+          <ChevronRight className="h-4 w-4 text-navy-300" />
+        </button>
       </div>
 
       {/* Sign out */}

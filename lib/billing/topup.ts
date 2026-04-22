@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import "server-only";
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AUDIT_EVENT, LOW_BALANCE_THRESHOLD_KOBO } from "./config";
 import { issueReconnectCommand } from "./disconnect";
 import { sendReconnectConfirmation } from "@/lib/whatsapp/proactive";
+import { dispatchNotification } from "@/lib/notifications/dispatcher";
 
 /**
  * Wallet top-ups. Idempotent on Paystack reference — the reference is
@@ -106,6 +108,31 @@ export async function processTopup(
       }).catch((err) => {
         console.error("[topup] reconnect whatsapp failed:", err);
       });
+    }
+  }
+
+  // Dispatch notifications using the central system
+  if (payload.status === "success") {
+    // 1. To neighbor
+    await dispatchNotification(topup.userId, "topup_confirmation", {
+      amount: topup.amountKobo / 100,
+      balance: Number(payload.new_balance_kobo) / 100,
+    }).catch(console.error);
+
+    // Find host to notify them
+    const { data: hostConn } = await supabase
+      .from("connections")
+      .select("host_id, neighbor_id, profiles!neighbor_id(full_name)")
+      .eq("neighbor_id", topup.userId)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (hostConn) {
+      // 2. To host
+      await dispatchNotification(hostConn.host_id, "neighbor_topup_received", {
+        amount: topup.amountKobo / 100,
+        neighborName: (hostConn.profiles as any)?.full_name || "A neighbor",
+      }).catch(console.error);
     }
   }
 
