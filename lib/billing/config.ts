@@ -41,6 +41,8 @@ export const AUDIT_EVENT = {
   WITHDRAWAL_REQUESTED: "withdrawal_requested",
   WITHDRAWAL_COMPLETED: "withdrawal_completed",
   WITHDRAWAL_FAILED: "withdrawal_failed",
+  REFUND_PROCESSED: "refund_processed",
+  REFUND_FAILED: "refund_failed",
 } as const;
 
 export type AuditEvent = (typeof AUDIT_EVENT)[keyof typeof AUDIT_EVENT];

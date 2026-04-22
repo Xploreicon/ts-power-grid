@@ -12,7 +12,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/hooks/useUser";
 import { useConnections } from "@/lib/hooks/host/useConnections";
 import { Button } from "@/components/ui";
@@ -63,7 +62,6 @@ export default function SupportPage() {
     if (!profile?.id) return;
     setSubmitting(true);
     try {
-      const supabase = createClient();
       const connectionId =
         values.connectionId && values.connectionId !== ""
           ? values.connectionId
@@ -76,13 +74,21 @@ export default function SupportPage() {
         return;
       }
 
-      const { error } = await supabase.from("disputes").insert({
-        raised_by: profile.id,
-        connection_id: connectionId,
+      const { createDispute } = await import("@/app/actions/create-dispute");
+      const result = await createDispute({
+        connectionId,
         category: values.category,
         description: values.description,
       });
-      if (error) throw error;
+
+      if (result.error) {
+        toast.error(
+          typeof result.error === "string"
+            ? result.error
+            : "Validation failed. Check your inputs.",
+        );
+        return;
+      }
 
       setSubmitted(true);
       toast.success("Support ticket submitted. We'll respond within 24 hours.");
