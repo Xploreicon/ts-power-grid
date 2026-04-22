@@ -1,7 +1,6 @@
 import React from "react";
 import { requireAdmin } from "@/lib/auth/admin-guard";
-import { AdminSidebar } from "@/components/admin/admin-sidebar";
-import { AdminTopbar } from "@/components/admin/admin-topbar";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { SearchPalette } from "@/components/admin/search-palette";
 
 export default async function AdminDashboardLayout({
@@ -12,17 +11,14 @@ export default async function AdminDashboardLayout({
   const session = await requireAdmin();
 
   return (
-    <div className="min-h-screen bg-offwhite text-navy-950">
-      <AdminSidebar />
-      <div className="pl-60">
-        <AdminTopbar
-          email={session.email}
-          fullName={session.fullName}
-          role={session.role}
-        />
-        <main className="p-6">{children}</main>
-      </div>
+    <>
+      <AdminShell
+        email={session.email}
+        fullName={session.fullName}
+      >
+        {children}
+      </AdminShell>
       <SearchPalette />
-    </div>
+    </>
   );
 }

@@ -80,7 +80,7 @@ export function AuditView({ events }: { events: AuditEvent[] }) {
         </span>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-navy-100 bg-white">
+      <div className="overflow-x-auto rounded-2xl border border-navy-100 bg-white">
         <table className="w-full text-sm">
           <thead className="bg-offwhite">
             <tr className="text-left text-xs uppercase tracking-wider text-navy-700/60">

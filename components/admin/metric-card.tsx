@@ -18,18 +18,18 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-navy-100 bg-white p-5 shadow-sm",
+        "rounded-2xl border border-navy-100 bg-white p-3 lg:p-5 shadow-sm",
         className,
       )}
     >
-      <div className="text-xs font-bold uppercase tracking-widest text-navy-700/60">
+      <div className="text-[10px] font-bold uppercase tracking-widest text-navy-700/60 lg:text-xs">
         {label}
       </div>
-      <div className="mt-2 font-mono text-3xl font-semibold tabular-nums text-navy-950">
+      <div className="mt-1 font-mono text-xl font-semibold tabular-nums text-navy-950 lg:mt-2 lg:text-3xl">
         {value}
       </div>
       {(hint || delta) && (
-        <div className="mt-2 flex items-center gap-2 text-xs text-navy-700/70">
+        <div className="mt-1 flex items-center gap-2 text-[10px] text-navy-700/70 lg:mt-2 lg:text-xs">
           {delta ? (
             <span
               className={cn(
