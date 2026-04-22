@@ -73,7 +73,8 @@ export function InventoryView({
           <h2 className="border-b border-navy-100 p-4 font-display text-lg font-semibold capitalize">
             {g.category.replace(/_/g, " ")}
           </h2>
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
             <thead className="bg-offwhite text-xs uppercase tracking-wider text-navy-700/70">
               <tr>
                 <th className="px-4 py-2">SKU</th>
@@ -119,7 +120,8 @@ export function InventoryView({
               })}
             </tbody>
           </table>
-        </section>
+        </div>
+      </section>
       ))}
 
       <section className="rounded-2xl border border-navy-100 bg-white">

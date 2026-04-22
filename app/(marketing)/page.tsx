@@ -84,7 +84,7 @@ function MarketingPageContent() {
                   Now onboarding Lagos pilot hosts
                 </Badge>
                 <h1 className="text-5xl lg:text-7xl font-display font-bold text-navy-950 leading-[1.1] tracking-tight">
-                  Be your own <span className="italic text-yellow-500">NEPA.</span> <br />
+                  Be your own <span className="italic bg-yellow-500 text-navy-950 px-3 rounded-lg">NEPA.</span> <br />
                   <span className="text-navy-900">Sell power to your neighbors.</span>
                 </h1>
                 <p className="text-xl text-navy-700 font-sans max-w-lg leading-relaxed">
@@ -160,7 +160,7 @@ function MarketingPageContent() {
         <section id="how-it-works" className="py-24 bg-paper/50">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-16">
             <FadeIn className="space-y-4 max-w-3xl mx-auto">
-              <span className="text-sm font-bold tracking-widest text-yellow-600 uppercase">HOW IT WORKS</span>
+              <span className="text-sm font-bold tracking-widest text-navy-900 uppercase">HOW IT WORKS</span>
               <h2 className="text-4xl lg:text-6xl font-display font-bold text-navy-950">
                 Solar you own. Power you sell.
               </h2>
@@ -193,7 +193,7 @@ function MarketingPageContent() {
                   className="group p-8 bg-white rounded-2xl border border-navy-100 hover:border-yellow-500 transition-all hover:shadow-xl"
                 >
                   <div className="flex items-center justify-between mb-8">
-                    <span className="font-mono text-4xl font-bold text-navy-100 group-hover:text-yellow-100 transition-colors">
+                    <span className="font-mono text-4xl font-bold text-navy-950/30 group-hover:text-navy-950/70 transition-colors">
                       {item.step}
                     </span>
                     <div className="h-12 w-12 rounded-xl bg-navy-50 flex items-center justify-center text-navy-900 group-hover:bg-yellow-500 group-hover:text-navy-950 transition-all">
@@ -220,11 +220,11 @@ function MarketingPageContent() {
                   <div className="flex justify-between items-start mb-8">
                     <div>
                       <h3 className="text-3xl font-display font-bold mb-2">Full Stack Host</h3>
-                      <p className="text-navy-300 font-sans">For sites with no existing solar.</p>
+                      <p className="text-white/70 font-sans">For sites with no existing solar.</p>
                     </div>
                     <div className="text-right">
                       <span className="font-mono text-3xl font-bold block">₦6M</span>
-                      <span className="text-xs uppercase text-navy-400 font-bold tracking-widest">STARTING AT</span>
+                      <span className="text-xs uppercase text-white/70 font-bold tracking-widest">STARTING AT</span>
                     </div>
                   </div>
                   <ul className="space-y-4 mb-12">
@@ -235,7 +235,7 @@ function MarketingPageContent() {
                       "Full Professional Installation",
                       "Grid-Scale Maintenance Support"
                     ].map((feature, i) => (
-                      <li key={i} className="flex items-center space-x-3 text-navy-100">
+                      <li key={i} className="flex items-center space-x-3 text-white">
                         <CheckCircle2 className="h-5 w-5 text-yellow-500 shrink-0" />
                         <span className="text-sm font-medium">{feature}</span>
                       </li>
@@ -257,11 +257,11 @@ function MarketingPageContent() {
                   <div className="flex justify-between items-start mb-8">
                     <div>
                       <h3 className="text-3xl font-display font-bold mb-2">Upgrade Kit</h3>
-                      <p className="text-navy-900/60 font-sans">For existing solar owners.</p>
+                      <p className="text-navy-950/80 font-sans">For existing solar owners.</p>
                     </div>
                     <div className="text-right">
                       <span className="font-mono text-3xl font-bold block">₦800K+</span>
-                      <span className="text-xs uppercase text-navy-900/40 font-bold tracking-widest">ONE-TIME FEE</span>
+                      <span className="text-xs uppercase text-navy-950/70 font-bold tracking-widest">ONE-TIME FEE</span>
                     </div>
                   </div>
                   <ul className="space-y-4 mb-12">
@@ -293,14 +293,13 @@ function MarketingPageContent() {
         <section className="py-32 bg-navy-950 text-center relative overflow-hidden">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
             <FadeIn className="space-y-6">
-              <h2 className="text-navy-400 text-sm font-bold tracking-widest uppercase">THE OPPORTUNITY</h2>
-              <div className="space-y-2">
-                <span className="text-[10vw] font-display font-bold leading-none text-yellow-500">₦180,000</span>
-                <span className="block text-2xl lg:text-3xl text-white font-sans font-medium">Average monthly earnings for a Lagos Host</span>
+              <h2 className="text-white/70 text-sm font-bold tracking-widest uppercase">THE OPPORTUNITY</h2>
+              <div className="space-y-4">
+                <span className="text-[10vw] font-display font-bold leading-none text-yellow-500 block">₦180,000</span>
+                <p className="text-white/70 max-w-3xl mx-auto text-xl lg:text-2xl leading-relaxed font-medium">
+                  Typical Lagos SME spends this on petrol for backup power. With T&S, your neighbors pay that to <strong className="text-[#FFB800]">YOU</strong> instead — while you stop spending your own.
+                </p>
               </div>
-              <p className="text-navy-300 max-w-2xl mx-auto text-lg leading-relaxed pt-8">
-                Most Lagos SMEs spend this on petrol every month just to stay open. With T&S Power Grid, you earn it by powering them instead.
-              </p>
             </FadeIn>
           </div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-500/10 via-transparent to-transparent opacity-50" />
@@ -368,7 +367,7 @@ function MarketingPageContent() {
                     <item.icon className="h-6 w-6" strokeWidth={1.5} />
                   </div>
                   <h3 className="text-xl font-display font-bold mb-4">{item.title}</h3>
-                  <p className="text-navy-400 text-sm leading-relaxed">{item.desc}</p>
+                  <p className="text-white/70 text-sm leading-relaxed">{item.desc}</p>
                 </FadeIn>
               ))}
             </div>
@@ -381,7 +380,7 @@ function MarketingPageContent() {
               <h2 className="text-4xl lg:text-6xl font-display font-bold text-navy-950">
                 Ready to be your own NEPA?
               </h2>
-              <p className="text-xl text-navy-900/80 font-sans max-w-2xl mx-auto">
+              <p className="text-xl text-navy-950/80 font-sans max-w-2xl mx-auto">
                 We are currently onboarding 50 pilot hosts across Lekki, Victoria Island, and Ikeja. Secure your spot in the energy revolution.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -408,14 +407,14 @@ function MarketingPageContent() {
                     </div>
                     <span className="font-display text-2xl font-bold tracking-tight">T&S Power Grid</span>
                   </Link>
-                  <p className="text-navy-400 text-sm font-sans leading-relaxed">
+                  <p className="text-white/70 text-sm font-sans leading-relaxed">
                     Building the infrastructure for decentralized energy in Africa. Start sharing, start earning.
                   </p>
                 </div>
                 
                 <div>
-                  <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-navy-500">Product</h5>
-                  <ul className="space-y-4 text-navy-300 text-sm">
+                  <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-white/80">Product</h5>
+                  <ul className="space-y-4 text-white/70 text-sm">
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Become a Host</Link></li>
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Join as Neighbor</Link></li>
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">The Host App</Link></li>
@@ -424,8 +423,8 @@ function MarketingPageContent() {
                 </div>
 
                 <div>
-                  <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-navy-500">Company</h5>
-                  <ul className="space-y-4 text-navy-300 text-sm">
+                  <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-white/80">Company</h5>
+                  <ul className="space-y-4 text-white/70 text-sm">
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">About Us</Link></li>
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Lagos Pilot</Link></li>
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Careers</Link></li>
@@ -434,8 +433,8 @@ function MarketingPageContent() {
                 </div>
 
                 <div>
-                  <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-navy-500">Resources</h5>
-                  <ul className="space-y-4 text-navy-300 text-sm">
+                  <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-white/80">Resources</h5>
+                  <ul className="space-y-4 text-white/70 text-sm">
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Safety FAQ</Link></li>
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Solar Math</Link></li>
                     <li><Link href="#" className="hover:text-yellow-500 transition-colors">Regulatory Status</Link></li>
@@ -444,9 +443,9 @@ function MarketingPageContent() {
                 </div>
              </div>
              
-             <div className="pt-12 border-t border-navy-800 flex flex-col md:flex-row justify-between items-center gap-4 text-navy-500 text-xs font-medium uppercase tracking-widest">
+             <div className="pt-12 border-t border-navy-800 flex flex-col md:flex-row justify-between items-center gap-4 text-white/70 text-xs font-medium uppercase tracking-widest">
                 <span>© 2026 T&S Power Grid Limited</span>
-                <span className="text-navy-400">Made in Lagos, for Lagos</span>
+                <span className="text-white/70">Made in Lagos, for Lagos</span>
                 <div className="flex space-x-6">
                    <Link href="#" className="hover:text-yellow-500 transition-colors text-lg">𝕏</Link>
                    <Link href="#" className="hover:text-yellow-500 transition-colors text-lg">in</Link>
