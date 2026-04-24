@@ -34,23 +34,22 @@ export function useNotifications() {
         setNotifications(data);
       }
 
-      const channel = supabase
-        .channel("notifications_channel")
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${user.id}`,
-          },
-          (payload) => {
-            if (mounted) {
-              setNotifications((prev) => [payload.new as NotificationRecord, ...prev].slice(0, 20));
-            }
+      const channel = supabase.channel("notifications_channel");
+      channel.on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (mounted) {
+            setNotifications((prev) => [payload.new as NotificationRecord, ...prev].slice(0, 20));
           }
-        )
-        .subscribe();
+        },
+      );
+      channel.subscribe();
 
       return () => {
         supabase.removeChannel(channel);

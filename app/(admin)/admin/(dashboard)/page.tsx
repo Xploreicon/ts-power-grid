@@ -46,7 +46,7 @@ export default async function AdminDashboardPage() {
             </h2>
             <span className="text-xs text-navy-700/60">Platform fees, ₦</span>
           </div>
-          <div className="mt-4 h-64">
+          <div className="mt-4 h-64 min-h-[300px] w-full">
             <RevenueChart data={snap.revenueByDay} />
           </div>
         </div>
