@@ -1,0 +1,29 @@
+[Unit]
+Description=T&S Power Grid Gateway Hub
+Documentation=https://github.com/your-org/ts-power-grid/tree/main/firmware
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Run as a dedicated user if one exists; fall back to root for dev Pis.
+User=root
+Group=root
+WorkingDirectory=/opt/ts-gateway
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/ts-gateway/venv/bin/python -m ts_gateway.main \
+    --config /etc/ts-gateway/config.yaml
+Restart=always
+RestartSec=10
+TimeoutStopSec=15
+# journald captures stdout/stderr — `journalctl -u ts-gateway`.
+StandardOutput=journal
+StandardError=journal
+# Hardening — the service only needs a handful of write targets.
+ProtectSystem=strict
+ReadWritePaths=/var/lib/ts-gateway /var/log/ts-gateway
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

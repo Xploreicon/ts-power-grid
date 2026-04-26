@@ -1,0 +1,69 @@
+# T&S Gateway Hub — default config.
+#
+# Copy to /etc/ts-gateway/config.yaml and edit site_id + cert paths
+# during provisioning. Values here are the defaults applied by
+# config.load() when a key is missing.
+
+# Unique site identifier — must match the CN of the client cert.
+# The MQTT broker's ACL denies any mismatch.
+site_id: "00000000-0000-0000-0000-000000000000"
+
+mqtt:
+  host: "mqtt.tspowergrid.com"
+  port: 8883
+  # mTLS material. All three files must be present at boot.
+  ca_cert: "/etc/ts-gateway/certs/ca.crt"
+  client_cert: "/etc/ts-gateway/certs/client.crt"
+  client_key: "/etc/ts-gateway/certs/client.key"
+  keepalive_sec: 60
+  # Last-will published retained when the socket drops uncleanly — the
+  # backend picks this up as an offline signal within the keepalive window.
+  will_topic_suffix: "gateway/heartbeat"
+
+intervals:
+  meter_poll_sec: 30        # bus read cadence per meter
+  meter_stagger_sec: 2      # delay between meters on same bus
+  heartbeat_sec: 300        # 5 min
+  health_alert_sec: 60      # internal health tick
+
+offline_queue:
+  # Leave null for local dev — LocalQueue writes to firmware/data/queue.db
+  # next to the package. Production Pi installs override to
+  # /var/lib/ts-gateway/queue.db (see install.sh + the systemd unit's
+  # ReadWritePaths).
+  db_path: null
+  max_age_hours: 72         # drop readings older than this on drain
+  drain_batch: 100          # messages per drain cycle
+
+modbus:
+  port: "/dev/ttyUSB0"      # RS-485 adapter
+  baudrate: 9600
+  parity: "N"
+  stopbits: 1
+  bytesize: 8
+  timeout_sec: 2
+
+# Meter roster. `driver` picks a class from ts_gateway.meters.
+# `id` is the UUID registered in Supabase. Kept static per site.
+#
+# Default uses `simulator` so `--dry-run` works on a laptop without
+# pymodbus or an RS-485 adapter. Production config.yaml on the Pi
+# swaps this to `hexing_hxe110` during provisioning.
+meters:
+  - id: "00000000-0000-0000-0000-000000000001"
+    driver: "simulator"
+    modbus_address: 0
+    role: "host"            # host | neighbor
+  # Real hardware example:
+  # - id: "..."
+  #   driver: "hexing_hxe110"
+  #   modbus_address: 1
+  #   role: "host"
+
+thresholds:
+  cpu_temp_c: 80
+  disk_used_pct: 90
+  mem_used_pct: 90
+
+logging:
+  level: "INFO"             # DEBUG | INFO | WARNING | ERROR

@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../..",
+    "paths": {
+      "@/*": ["./*"],
+      "server-only": ["./services/mqtt-ingest/_shims/server-only.ts"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}

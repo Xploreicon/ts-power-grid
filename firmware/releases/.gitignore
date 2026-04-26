@@ -1,0 +1,4 @@
+# Built firmware bundles — published to releases.tspowergrid.com,
+# not stored in git.
+*
+!.gitignore

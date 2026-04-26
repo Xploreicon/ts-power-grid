@@ -1,0 +1,40 @@
+services:
+  emqx:
+    image: emqx/emqx:5.8
+    container_name: ts-emqx
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT (plain — dev only, disabled in prod ACL)
+      - "8883:8883"   # MQTT over TLS (mTLS required)
+      - "8083:8083"   # MQTT over WebSocket
+      - "8084:8084"   # MQTT over WSS
+      - "18083:18083" # Dashboard (admin)
+    environment:
+      EMQX_NAME: ts-emqx
+      EMQX_HOST: 127.0.0.1
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_PASSWORD:-change-me-in-prod}
+      # Listener config — mTLS on 8883, plain MQTT on 1883 for local dev only.
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CACERTFILE: /opt/emqx/etc/certs/ca.crt
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__CERTFILE: /opt/emqx/etc/certs/server.crt
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__KEYFILE: /opt/emqx/etc/certs/server.key
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__VERIFY: verify_peer
+      EMQX_LISTENERS__SSL__DEFAULT__SSL_OPTIONS__FAIL_IF_NO_PEER_CERT: "true"
+      # Authorization — file-based ACL rules (see acl.conf).
+      EMQX_AUTHORIZATION__SOURCES__1__TYPE: file
+      EMQX_AUTHORIZATION__SOURCES__1__ENABLE: "true"
+      EMQX_AUTHORIZATION__SOURCES__1__PATH: /opt/emqx/etc/acl.conf
+      EMQX_AUTHORIZATION__NO_MATCH: deny
+    volumes:
+      - ./acl.conf:/opt/emqx/etc/acl.conf:ro
+      - ./certs:/opt/emqx/etc/certs:ro
+      - emqx-data:/opt/emqx/data
+      - emqx-log:/opt/emqx/log
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  emqx-data:
+  emqx-log:

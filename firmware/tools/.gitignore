@@ -1,0 +1,5 @@
+# Operator-only secrets and build artefacts. Never commit.
+signing_key
+signing_key.pub
+out/
+*.csr

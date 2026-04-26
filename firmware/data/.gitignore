@@ -1,0 +1,5 @@
+# Dev-only SQLite offline queue — created by LocalQueue's package-relative
+# fallback path. Production writes to /var/lib/ts-gateway/queue.db.
+*.db
+*.db-wal
+*.db-shm
