@@ -36,6 +36,7 @@ class MeterReader:
         modbus_client: Optional[object],
         on_reading: OnReading,
         on_event: OnEvent,
+        relay_controller: Optional[object] = None,
     ):
         self._cfg = config
         self._on_reading = on_reading
@@ -46,15 +47,21 @@ class MeterReader:
 
         for meter in config.meters:
             # The simulator driver ignores the modbus client; real
-            # drivers share one client across meters on the bus.
+            # drivers share one client across meters on the bus. PZEM
+            # also takes a relay_controller + relay_pin; drivers that
+            # don't care about either kwarg accept and discard them via
+            # `**_` in their __init__.
             driver = build_driver(
                 meter.driver,
                 client=modbus_client,
                 modbus_address=meter.modbus_address,
+                relay_controller=relay_controller,
+                relay_pin=meter.relay_pin,
             )
             self._drivers[meter.id] = (meter, driver)
-            log.info("registered meter %s (driver=%s addr=%d)",
-                     meter.id, meter.driver, meter.modbus_address)
+            log.info("registered meter %s (driver=%s addr=%d relay_pin=%s)",
+                     meter.id, meter.driver, meter.modbus_address,
+                     meter.relay_pin)
 
     # ------------------------------------------------------------------
     # Command routing (exposed so command_handler can reach a driver)

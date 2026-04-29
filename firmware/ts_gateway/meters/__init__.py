@@ -3,10 +3,12 @@ from __future__ import annotations
 
 from .base import MeterDriver, MeterReading
 from .hexing_hxe110 import HexingHXE110
+from .pzem004t import PZEM004T
 from .simulator import SimulatedMeter
 
 DRIVERS: dict[str, type[MeterDriver]] = {
     "hexing_hxe110": HexingHXE110,
+    "pzem004t": PZEM004T,
     "simulator": SimulatedMeter,
 }
 

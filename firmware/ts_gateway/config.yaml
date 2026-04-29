@@ -36,29 +36,37 @@ offline_queue:
   drain_batch: 100          # messages per drain cycle
 
 modbus:
-  port: "/dev/ttyUSB0"      # RS-485 adapter
-  baudrate: 9600
-  parity: "N"
+  port: "/dev/ttyUSB0"      # PZEM-004T USB-TTL adapter
+  baudrate: 9600            # PZEM-004T v3.0 default
+  parity: "N"               # PZEM-004T is 8N1
   stopbits: 1
   bytesize: 8
   timeout_sec: 2
 
+# BCM pin numbers for the 2-channel relay module's channel inputs.
+# Each meter's `relay_pin` must reference one of these. Empty list =
+# no relay hardware (Hexing-on-board-relay sites, dev laptops).
+relay_pins: [17, 27]
+
 # Meter roster. `driver` picks a class from ts_gateway.meters.
 # `id` is the UUID registered in Supabase. Kept static per site.
 #
-# Default uses `simulator` so `--dry-run` works on a laptop without
-# pymodbus or an RS-485 adapter. Production config.yaml on the Pi
-# swaps this to `hexing_hxe110` during provisioning.
+# Default driver is `pzem004t` (the rev we're shipping in 2026-Q2).
+# Swap to `simulator` for `--dry-run` on a laptop without pymodbus or
+# an RS-485 adapter; swap to `hexing_hxe110` for legacy retrofit sites
+# that already have a Hexing meter installed.
 meters:
   - id: "00000000-0000-0000-0000-000000000001"
-    driver: "simulator"
-    modbus_address: 0
+    driver: "pzem004t"
+    modbus_address: 1       # PZEM ships at slave address 0x01
+    relay_pin: 17           # contactor wired to GPIO17 (BCM)
     role: "host"            # host | neighbor
-  # Real hardware example:
+  # Second-circuit example:
   # - id: "..."
-  #   driver: "hexing_hxe110"
-  #   modbus_address: 1
-  #   role: "host"
+  #   driver: "pzem004t"
+  #   modbus_address: 2
+  #   relay_pin: 27
+  #   role: "neighbor"
 
 thresholds:
   cpu_temp_c: 80

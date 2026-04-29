@@ -57,6 +57,10 @@ class MeterConfig:
     driver: str
     modbus_address: int
     role: str = "neighbor"
+    # BCM pin number of the contactor wired to this meter. Only used by
+    # drivers that delegate relay control to the GPIO (e.g. pzem004t);
+    # drivers with on-board relays (hexing_hxe110) ignore it.
+    relay_pin: int | None = None
 
 
 @dataclass
@@ -75,6 +79,10 @@ class Config:
     modbus: ModbusConfig
     meters: list[MeterConfig]
     thresholds: Thresholds
+    # BCM pin numbers reserved for the relay module's channels. Each
+    # MeterConfig.relay_pin must reference one of these. Empty list =
+    # no relay hardware on this gateway.
+    relay_pins: list[int] = field(default_factory=list)
     log_level: str = "INFO"
 
 
@@ -88,5 +96,6 @@ def load(path: str | Path) -> Config:
         modbus=ModbusConfig(**raw.get("modbus", {})),
         meters=[MeterConfig(**m) for m in raw.get("meters", [])],
         thresholds=Thresholds(**raw.get("thresholds", {})),
+        relay_pins=list(raw.get("relay_pins", [])),
         log_level=str(raw.get("logging", {}).get("level", "INFO")),
     )

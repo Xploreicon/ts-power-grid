@@ -93,6 +93,11 @@ class CommandHandler:
     # Individual commands
     # ------------------------------------------------------------------
     def _cmd_disconnect(self, command: dict) -> dict:
+        # The dispatch goes through the driver, which decides whether
+        # to fire a Modbus relay coil (Hexing) or a GPIO line via
+        # RelayController (PZEM-004T). Same call site, different
+        # mechanism — that's intentional so adding a third meter
+        # vendor doesn't touch this file.
         meter_id = str(command.get("meter_id") or "")
         driver = self._reader.driver_for(meter_id)
         if driver is None:
@@ -101,6 +106,7 @@ class CommandHandler:
         return {"meter_id": meter_id, "relay": "open"}
 
     def _cmd_reconnect(self, command: dict) -> dict:
+        # See _cmd_disconnect — relay mechanism is driver-dependent.
         meter_id = str(command.get("meter_id") or "")
         driver = self._reader.driver_for(meter_id)
         if driver is None:

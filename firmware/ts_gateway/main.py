@@ -23,6 +23,7 @@ from .local_db import LocalQueue
 from .meter_reader import MeterReader
 from .meters import MeterReading
 from .mqtt_client import MqttClient
+from .relay_controller import RelayController
 
 log = logging.getLogger(__name__)
 
@@ -105,11 +106,16 @@ class Gateway:
 
         self.mqtt = MqttClient(cfg, on_command=self._on_command_msg)
         modbus_client = build_modbus_client(cfg)
+        # One RelayController per gateway, shared across every driver
+        # that delegates relay ops to GPIO (PZEM-004T does; Hexing's
+        # on-board relay does not).
+        self.relays = RelayController(cfg.relay_pins) if cfg.relay_pins else None
         self.reader = MeterReader(
             cfg,
             modbus_client=modbus_client,
             on_reading=self._on_reading,
             on_event=self._on_event,
+            relay_controller=self.relays,
         )
         self.commands = CommandHandler(
             publish_event=self._publish_event,
@@ -189,6 +195,8 @@ class Gateway:
         log.info("shutting down")
         self.reader.stop()
         self.mqtt.disconnect()
+        if self.relays is not None:
+            self.relays.cleanup()
 
     def _emit_heartbeat(self) -> None:
         snap = sample_health()

@@ -84,7 +84,69 @@ Full example in `ts_gateway/config.yaml`. Key knobs:
 | `intervals.heartbeat_sec` | Heartbeat cadence (default 300 s). |
 | `offline_queue.max_age_hours` | Stale queue rows are dropped (default 72 h). |
 | `thresholds.cpu_temp_c` | Emits `health_breach` event above this (default 80°C). |
-| `meters[].driver` | `hexing_hxe110` for real meters, `simulator` for dev. |
+| `meters[].driver` | `pzem004t` (default), `hexing_hxe110` (legacy retrofits), `simulator` (dev). |
+| `meters[].modbus_address` | Slave address — PZEM ships at `1`; flash a different address before bolting two PZEMs onto one bus. |
+| `meters[].relay_pin` | BCM pin driving this meter's contactor (PZEM only — Hexing has its own relay). Must reference one of `relay_pins`. |
+| `relay_pins` | Top-level list of BCM pins reserved for the relay module. Empty list = no relay hardware. |
+
+## PZEM-004T setup
+
+The PZEM-004T v3.0 is what we ship in 2026 — a low-cost AC monitor over
+Modbus RTU paired with a 2-channel SRD relay module wired to the Pi's
+GPIO header. Wiring per host site:
+
+```
+mains live ──┬─────────────── PZEM L_in
+             │
+             └── relay COM ── PZEM L_out → load
+                relay NO  ─── (cut path)
+                relay coil ── GPIO17 (ch1)  /  GPIO27 (ch2)
+
+PZEM TX  ── USB-TTL adapter RX (CH340/FTDI)  → /dev/ttyUSB0
+PZEM RX  ── USB-TTL adapter TX
+PZEM 5V  ── adapter 5V
+PZEM GND ── adapter GND, common with Pi GND
+```
+
+Notes:
+
+- **Slave addresses.** Out of the box every PZEM answers on `0x01`. If
+  you wire two onto one RS-485 segment, change the second one's
+  address with the `0x06` write to register `0x0002` *before* daisy-
+  chaining — the official PZEM tool or a one-liner via pymodbus does
+  it.
+- **Relay polarity.** `relay_controller` assumes active-high modules
+  (the SRD-05VDC-SL-C boards we use). HIGH on the GPIO pin closes the
+  relay; LOW opens it. If a future build uses an active-low module,
+  flip `_HIGH_MEANS_ON` in `relay_controller.py`.
+- **GPIO permissions.** `RPi.GPIO` accesses `/dev/gpiomem` — the
+  systemd unit runs as root, which has access. If you run the
+  service as a non-root user, add it to the `gpio` group.
+- **Mac dev.** `RPi.GPIO` can't install on macOS; the requirements
+  file gates it to Linux. `relay_controller` falls back to a mock
+  that logs every transition, so `--dry-run` works on a laptop.
+
+To verify wiring on a fresh Pi:
+
+```bash
+# read once with the gateway down
+python3 -c "
+from pymodbus.client import ModbusSerialClient
+c = ModbusSerialClient(port='/dev/ttyUSB0', baudrate=9600, timeout=2)
+c.connect()
+rr = c.read_input_registers(address=0, count=10, slave=1)
+print('voltage:', rr.registers[0] * 0.1, 'V')
+print('energy:', (rr.registers[5] | rr.registers[6]<<16), 'Wh')
+"
+
+# toggle the relay manually
+python3 -c "
+from ts_gateway.relay_controller import RelayController
+r = RelayController([17, 27])
+r.disconnect(17); input('relay open — press Enter to close')
+r.connect(17); r.cleanup()
+"
+```
 
 ## Offline behaviour
 
