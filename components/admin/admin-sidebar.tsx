@@ -15,6 +15,7 @@ import {
   Contact,
   ShieldCheck,
   Zap,
+  Router,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -28,6 +29,7 @@ const NAV: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/leads", label: "Leads", icon: Contact },
   { href: "/admin/sites", label: "Sites", icon: Building2 },
+  { href: "/admin/gateways", label: "Gateways", icon: Router },
   { href: "/admin/customers", label: "Customers", icon: Users },
   { href: "/admin/transactions", label: "Transactions", icon: ScrollText },
   { href: "/admin/disputes", label: "Disputes", icon: MessageSquareWarning },
