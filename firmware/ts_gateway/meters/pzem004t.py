@@ -101,7 +101,7 @@ class PZEM004T(MeterDriver):
         if self._client is None:
             raise RuntimeError("modbus client not attached")
         rr = self._client.read_input_registers(
-            address=register, count=count, slave=self._addr
+            address=register, count=count, device_id=self._addr
         )
         if rr.isError():
             raise IOError(

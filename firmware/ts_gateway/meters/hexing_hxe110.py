@@ -58,7 +58,7 @@ class HexingHXE110(MeterDriver):
         if self._client is None:
             raise RuntimeError("modbus client not attached")
         rr = self._client.read_holding_registers(
-            address=register, count=2, slave=self._addr
+            address=register, count=2, device_id=self._addr
         )
         if rr.isError():
             raise IOError(f"modbus read failed at 0x{register:04X}: {rr}")
@@ -80,12 +80,12 @@ class HexingHXE110(MeterDriver):
         if self._client is None:
             raise RuntimeError("modbus client not attached")
         fault = self._client.read_holding_registers(
-            address=REG_FAULT_FLAGS, count=1, slave=self._addr
+            address=REG_FAULT_FLAGS, count=1, device_id=self._addr
         )
         if not fault.isError() and fault.registers[0] != 0:
             return "fault"
         rr = self._client.read_holding_registers(
-            address=REG_RELAY_STATUS, count=1, slave=self._addr
+            address=REG_RELAY_STATUS, count=1, device_id=self._addr
         )
         if rr.isError():
             raise IOError(f"relay status read failed: {rr}")
@@ -104,7 +104,7 @@ class HexingHXE110(MeterDriver):
         if self._client is None:
             raise RuntimeError("modbus client not attached")
         rr = self._client.write_register(
-            address=REG_RELAY_CONTROL, value=value, slave=self._addr
+            address=REG_RELAY_CONTROL, value=value, device_id=self._addr
         )
         if rr.isError():
             raise IOError(f"relay write failed: {rr}")
@@ -117,7 +117,7 @@ class HexingHXE110(MeterDriver):
         if self._client is None:
             raise RuntimeError("modbus client not attached")
         rr = self._client.read_holding_registers(
-            address=REG_CUMULATIVE_KWH, count=14, slave=self._addr
+            address=REG_CUMULATIVE_KWH, count=14, device_id=self._addr
         )
         if rr.isError():
             raise IOError(f"batch read failed: {rr}")
