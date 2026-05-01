@@ -24,7 +24,7 @@ import {
   processReading,
   ReadingValidationError,
   ReadingProcessingError,
-} from "@/lib/billing/engine";
+} from "./billing";
 
 // ---------------------------------------------------------------------------
 // CLI
@@ -286,20 +286,29 @@ async function handleEvent(
   });
 
   // Only fault-class events page the host — command acks and routine
-  // status events are noise at the notification layer.
+  // status events are noise at the notification layer. We insert
+  // directly into the `notifications` table; the Next app's realtime
+  // subscription picks it up and renders it. Push/email fan-out done
+  // by the in-app dispatcher is intentionally skipped here so the
+  // ingest stays free of the Next dependency graph.
   if (event === "tamper" || event === "fault" || event === "offline") {
     if (site?.host_id) {
-      // Lazy-load the dispatcher so a missing optional module doesn't
-      // crash ingest startup in dev.
-      const { dispatchNotification } = await import("@/lib/notifications/dispatcher");
-      await dispatchNotification(site.host_id, "system_fault_reported", {
-        site_id: parsed.siteId,
-        event,
-        detail: body,
-      }).catch((err) => {
+      try {
+        await supabase.from("notifications").insert({
+          user_id: site.host_id,
+          type: "system_fault_reported",
+          title: `Gateway event: ${event}`,
+          body: `Site ${parsed.siteId} reported ${event}.`,
+          data: {
+            site_id: parsed.siteId,
+            event,
+            detail: body,
+          },
+        });
+      } catch (err) {
         metrics.errors += 1;
-        console.error("[ingest] dispatchNotification failed:", err);
-      });
+        console.error("[ingest] notification insert failed:", err);
+      }
     }
   }
 }

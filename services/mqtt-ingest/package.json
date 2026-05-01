@@ -5,9 +5,9 @@
   "description": "Ingests T&S gateway telemetry from the MQTT broker into Supabase.",
   "main": "index.ts",
   "scripts": {
-    "start": "tsx --tsconfig ./tsconfig.json index.ts",
-    "dev": "tsx watch --tsconfig ./tsconfig.json index.ts",
-    "dry": "tsx --tsconfig ./tsconfig.json index.ts --dry-run"
+    "start": "tsx index.ts",
+    "dev": "tsx watch index.ts",
+    "dry": "tsx index.ts --dry-run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.3",

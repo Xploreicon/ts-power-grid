@@ -19,23 +19,44 @@ JSONL dead-letter file (`DLQ_PATH`, default
 
 ## Run
 
-Imports (`@/lib/billing/engine`, `@/lib/notifications/dispatcher`)
-resolve via the repo-root `tsconfig.json` path aliases, so run from
-the repo root:
+The service is fully self-contained — no path aliases into the
+parent repo. Run from this directory:
 
 ```bash
+cd services/mqtt-ingest
+pnpm install
+
 # help
-pnpm tsx --tsconfig services/mqtt-ingest/tsconfig.json services/mqtt-ingest/index.ts --help
+npx tsx index.ts --help
 
 # dry-run — connect + log, no Supabase writes
-pnpm tsx --tsconfig services/mqtt-ingest/tsconfig.json services/mqtt-ingest/index.ts --dry-run
+npx tsx index.ts --dry-run
 
 # full run
-export MQTT_BROKER_URL=mqtt://localhost:1883
+export MQTT_BROKER_URL=mqtts://<cluster>.s1.eu.hivemq.cloud:8883
+export MQTT_USERNAME=...
+export MQTT_PASSWORD=...
 export SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL"
 export SUPABASE_SERVICE_ROLE_KEY=...
-pnpm tsx --tsconfig services/mqtt-ingest/tsconfig.json services/mqtt-ingest/index.ts
+npx tsx index.ts
 ```
+
+On Railway: set the project's **root directory** to
+`services/mqtt-ingest` and the **start command** to `npx tsx index.ts`.
+
+### What's NOT shared with the Next app
+
+`billing.ts` is an inline minimal RPC adapter — it validates the
+payload and forwards to `process_meter_reading`. It deliberately does
+*not* import `lib/billing/engine`, because that module's transitive
+graph (WhatsApp, Telegram, server-only) won't load outside Next.
+
+The trade-off: side-effects the in-app engine fires *after* the RPC
+commits — auto-disconnect MQTT command, low-balance and disconnect
+notifications — are not dispatched from the ingest path. The ledger
+itself is correct because all the writes happen inside the SQL
+function. If you need auto-disconnect from this service, publish the
+disconnect command from `index.ts` (it already holds an MQTT client).
 
 ## Environment
 
@@ -75,7 +96,7 @@ pnpm tsx tools/gateway-simulator/simulator.ts \
 Another terminal — ingest:
 
 ```bash
-pnpm tsx --tsconfig services/mqtt-ingest/tsconfig.json services/mqtt-ingest/index.ts
+cd services/mqtt-ingest && npx tsx index.ts
 ```
 
 Verify in Supabase after ~30 s:
