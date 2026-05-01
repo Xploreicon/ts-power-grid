@@ -76,6 +76,7 @@ export interface VerifyPhoneOtpResult {
   tokenHash: string;
   email: string;
   phone: string;
+  userId: string;
   isNewUser: boolean;
 }
 
@@ -155,6 +156,7 @@ export async function verifyPhoneOtp(
     tokenHash: link.properties.hashed_token,
     email,
     phone,
+    userId: userId!,
     isNewUser,
   };
 }

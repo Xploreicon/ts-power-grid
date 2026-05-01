@@ -17,6 +17,17 @@ export async function POST(req: NextRequest) {
 
   try {
     const result = await verifyPhoneOtp(body.otpToken, body.code);
+
+    // Wire claim_pending_connection into the auth flow.
+    // Neighbors who were invited by phone before they had an account
+    // will have their connections atomically linked now.
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const admin = createAdminClient();
+    await admin.rpc("claim_pending_connection", {
+      p_user_id: result.userId,
+      p_phone: result.phone,
+    });
+
     // The client exchanges tokenHash for a session via
     //   supabase.auth.verifyOtp({ token_hash, type: 'magiclink' })
     // which sets the auth cookies in the browser.
