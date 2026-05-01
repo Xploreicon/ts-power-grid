@@ -19,13 +19,22 @@ export function useHostTelemetry() {
     queryFn: async () => {
       const supabase = createClient();
 
-      // Get the host's solar meter
-      const { data: meter } = await supabase
+      // Get the host's own meter. The meter_type enum is
+      // ('host' | 'neighbor') — there is no 'solar'. The previous filter
+      // (`meter_type='solar'`) silently returned no rows on every host
+      // dashboard load.
+      //
+      // Picking the first row tolerates the unusual case of a host with
+      // multiple host-typed meters; in pilot there's exactly one per
+      // site so .limit(1) is just defence-in-depth.
+      const { data: meters } = await supabase
         .from("meters")
         .select("id")
         .eq("user_id", userId!)
-        .eq("meter_type", "solar")
-        .maybeSingle();
+        .eq("meter_type", "host")
+        .order("created_at", { ascending: true })
+        .limit(1);
+      const meter = meters?.[0];
 
       if (!meter) return { kwhToday: 0, currentPowerKw: 0 };
 
