@@ -194,6 +194,7 @@ async function deadLetter(
 
 async function handleTelemetry(
   supabase: SupabaseClient,
+  client: MqttClient,
   parsed: TelemetryTopic,
   body: Record<string, unknown>,
 ): Promise<void> {
@@ -207,7 +208,15 @@ async function handleTelemetry(
     return;
   }
   try {
-    await processReading(supabase, input);
+    const result = await processReading(supabase, input);
+    // Auto-disconnect: when the SQL function says the wallet ran dry,
+    // publish a relay-open on the same broker connection. We're
+    // already inside its message loop — no second connection needed.
+    // The corresponding "close" (reconnect) is fired from the Next
+    // app's topup flow via lib/billing/disconnect.issueReconnectCommand.
+    if (result.action === "disconnect") {
+      await publishRelayCommand(client, parsed.siteId, parsed.meterId, "open");
+    }
   } catch (err) {
     if (err instanceof ReadingValidationError) {
       await deadLetter("telemetry_validation", `telemetry/${parsed.meterId}`, JSON.stringify(body), err);
@@ -220,6 +229,42 @@ async function handleTelemetry(
     }
     throw err;
   }
+}
+
+/**
+ * Publish a relay command using the ingest's existing MQTT client.
+ * Topic format matches `lib/mqtt/publisher.publishRelay` so the
+ * gateway firmware sees a single payload shape regardless of which
+ * service initiated.
+ *
+ * `open`  = relay open  = power CUT
+ * `close` = relay closed = power FLOWING
+ */
+async function publishRelayCommand(
+  client: MqttClient,
+  siteId: string,
+  meterId: string,
+  action: "open" | "close",
+): Promise<void> {
+  const topic = `ts/sites/${siteId}/commands/relay`;
+  const payload = JSON.stringify({
+    command_id: randomUUID(),
+    issued_at: new Date().toISOString(),
+    meter_id: meterId,
+    action,
+  });
+  await new Promise<void>((resolve, reject) => {
+    client.publish(topic, payload, { qos: 1, retain: false }, (err) => {
+      if (err) {
+        metrics.errors += 1;
+        console.error(`[ingest] relay publish failed (${action}):`, err.message);
+        reject(err);
+      } else {
+        console.log(`[ingest] relay ${action} → ${siteId}/${meterId}`);
+        resolve();
+      }
+    });
+  });
 }
 
 async function handleHeartbeat(
@@ -368,7 +413,7 @@ async function main() {
       switch (parsed.kind) {
         case "telemetry":
           metrics.telemetry += 1;
-          await handleTelemetry(supabase, parsed, body);
+          await handleTelemetry(supabase, client, parsed, body);
           break;
         case "heartbeat":
           metrics.heartbeat += 1;

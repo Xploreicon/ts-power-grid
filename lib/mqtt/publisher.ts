@@ -126,6 +126,53 @@ export async function publishCommand(
   return { commandId, publishedAt };
 }
 
+/**
+ * Publish a relay open/close to `ts/sites/{siteId}/commands/relay`.
+ *
+ * Relay control lives on its own sub-topic — separate from the
+ * generic `commands` topic that carries reboots / firmware updates —
+ * so the broker ACL can grant relay-publish to the billing path
+ * without granting full command authority.
+ *
+ * `open`  = relay open  = power CUT
+ * `close` = relay closed = power FLOWING
+ *
+ * (Yes, the polarity is inverse to most consumer language. We use
+ * the relay's electrical state because that's what the firmware
+ * acts on.)
+ */
+export async function publishRelay(
+  siteId: string,
+  meterId: string,
+  action: "open" | "close",
+): Promise<PublishResult> {
+  if (!/^[0-9a-f-]{36}$/i.test(siteId)) {
+    throw new Error(`invalid site_id: ${siteId}`);
+  }
+  if (!/^[0-9a-f-]{36}$/i.test(meterId)) {
+    throw new Error(`invalid meter_id: ${meterId}`);
+  }
+  const client = await getClient();
+  const commandId = randomUUID();
+  const publishedAt = new Date().toISOString();
+  const topic = `ts/sites/${siteId}/commands/relay`;
+  const payload = JSON.stringify({
+    command_id: commandId,
+    issued_at: publishedAt,
+    meter_id: meterId,
+    action,
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    client.publish(topic, payload, { qos: 1, retain: false }, (err) => {
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+
+  return { commandId, publishedAt };
+}
+
 /** Shut down the shared connection. Call from worker teardown / tests. */
 export async function closePublisher(): Promise<void> {
   const c = cached;

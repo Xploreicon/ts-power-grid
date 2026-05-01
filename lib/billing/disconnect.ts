@@ -3,14 +3,22 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AUDIT_EVENT } from "./config";
 import { dispatchNotification } from "@/lib/notifications/dispatcher";
+import { publishRelay } from "@/lib/mqtt/publisher";
 
 /**
- * MQTT command dispatch is implemented in Prompt 15. Until then these
- * helpers only log to `billing_audit` so the ledger records intent, and
- * update `meters.status` so the UI reflects the connection state.
+ * Relay command dispatch — open the meter's contactor on disconnect,
+ * close it on reconnect. The actual MQTT publish goes through
+ * `lib/mqtt/publisher.publishRelay`, which writes to
+ * `ts/sites/{site_id}/commands/relay` on the shared backend mqtt
+ * connection. The gateway firmware listens on that topic and
+ * actuates the relay (or simulates the actuation when running with
+ * the simulator driver).
  *
- * When the MQTT client lands, replace the TODO blocks with `publish()`
- * calls — the surface here will not change.
+ * `acknowledged` reports whether the broker PUBACK'd the message —
+ * that's a guarantee the broker received it, not that the gateway
+ * has applied the relay change yet. The gateway publishes a
+ * follow-up `command_ack` event on its events topic; the ingest
+ * service records that asynchronously.
  */
 
 export interface DisconnectResult {
@@ -33,9 +41,7 @@ export async function issueDisconnectCommand(
   extra: Record<string, unknown> = {},
 ): Promise<DisconnectResult> {
   const issuedAt = new Date().toISOString();
-
-  // TODO(prompt-15): publish to `gateways/<gw>/meters/<meter>/cmd/disconnect`.
-  const acknowledged = true;
+  const acknowledged = await publishRelayForMeter(supabase, meterId, "open");
 
   await supabase
     .from("meters")
@@ -79,9 +85,7 @@ export async function issueReconnectCommand(
   extra: Record<string, unknown> = {},
 ): Promise<DisconnectResult> {
   const issuedAt = new Date().toISOString();
-
-  // TODO(prompt-15): publish to `gateways/<gw>/meters/<meter>/cmd/reconnect`.
-  const acknowledged = true;
+  const acknowledged = await publishRelayForMeter(supabase, meterId, "close");
 
   await supabase
     .from("meters")
@@ -106,4 +110,51 @@ export async function issueReconnectCommand(
   }
 
   return { meterId, issuedAt, acknowledged };
+}
+
+/**
+ * Resolve `meter_id` → `site_id` (via the meter's gateway) and publish
+ * the relay command. Returns true on broker PUBACK, false on lookup
+ * miss or publish failure — the caller still writes the audit row so
+ * an operator can see "command attempted but broker rejected" cases.
+ */
+async function publishRelayForMeter(
+  supabase: SupabaseClient,
+  meterId: string,
+  action: "open" | "close",
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("meters")
+    .select("gateways:gateway_id(site_id)")
+    .eq("id", meterId)
+    .maybeSingle();
+  if (error || !data) {
+    console.error(
+      `[billing] publishRelay lookup failed for meter ${meterId}:`,
+      error?.message ?? "no row",
+    );
+    return false;
+  }
+  // Supabase typings flatten this oddly; the join may surface as an
+  // object or a single-element array depending on PostgREST mood.
+  const gw = (data as any).gateways;
+  const siteId = (Array.isArray(gw) ? gw[0]?.site_id : gw?.site_id) as
+    | string
+    | undefined;
+  if (!siteId) {
+    console.error(
+      `[billing] meter ${meterId} has no gateway/site — cannot publish relay`,
+    );
+    return false;
+  }
+  try {
+    await publishRelay(siteId, meterId, action);
+    return true;
+  } catch (err) {
+    console.error(
+      `[billing] publishRelay failed for meter ${meterId} (${action}):`,
+      err instanceof Error ? err.message : err,
+    );
+    return false;
+  }
 }
