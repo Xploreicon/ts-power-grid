@@ -16,6 +16,7 @@ type Tab = "equipment" | "consumption" | "financial" | "people" | "activity";
 
 interface Site {
   id: string;
+  name: string | null;
   address: string | null;
   installation_type: string | null;
   status: string | null;
@@ -89,9 +90,13 @@ export function SiteDetailView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="font-display text-2xl font-semibold">
-              {site.profiles?.full_name ?? "Host"}
+              {site.name ?? site.profiles?.full_name ?? "Host"}
             </h1>
-            <p className="mt-1 text-navy-700/70">{site.address}</p>
+            <p className="mt-1 text-navy-700/70">
+              {site.profiles?.full_name && site.name
+                ? `${site.profiles.full_name} — ${site.address}`
+                : site.address}
+            </p>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
               <StatusBadge status={site.status} />
               <span className="rounded-md bg-navy-100 px-2 py-0.5 text-xs font-semibold uppercase tracking-wider text-navy-700">

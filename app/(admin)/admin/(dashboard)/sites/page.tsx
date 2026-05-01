@@ -1,20 +1,40 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SitesTable } from "./sites-table";
+import { CreateSiteButton, type HostOption } from "./create-site-button";
 
 export const dynamic = "force-dynamic";
 
 export default async function SitesPage() {
   const supabase = createAdminClient();
 
-  // Fetch sites joined to host name. Active-neighbor counts + revenue are
-  // aggregated client-side from a second query so the table stays snappy.
-  const { data: sites } = await supabase
-    .from("sites")
-    .select(
-      "id, host_id, address, installation_type, status, installed_at, profiles:host_id(full_name)",
-    )
-    .order("created_at", { ascending: false })
-    .limit(500);
+  // Fetch sites + the host roster in parallel — the latter feeds the
+  // Create Site dialog's host picker. Hosts are bounded (~hundreds in
+  // pilot, low thousands later) so a flat select is cheap; we'll
+  // graduate to a typeahead endpoint when this gets slow.
+  const [
+    { data: sites },
+    { data: hostsRaw },
+  ] = await Promise.all([
+    supabase
+      .from("sites")
+      .select(
+        "id, name, host_id, address, installation_type, status, installed_at, profiles:host_id(full_name)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(500),
+    supabase
+      .from("profiles")
+      .select("id, full_name, phone")
+      .in("role", ["host", "admin", "super_admin"])
+      .order("full_name", { ascending: true })
+      .limit(500),
+  ]);
+
+  const hosts: HostOption[] = (hostsRaw ?? []).map((p) => ({
+    id: p.id as string,
+    full_name: (p.full_name as string | null) ?? null,
+    phone: (p.phone as string | null) ?? null,
+  }));
 
   const siteIds = (sites ?? []).map((s) => s.id);
 
@@ -64,6 +84,7 @@ export default async function SitesPage() {
         ?.full_name ?? null;
     return {
       id: s.id as string,
+      name: (s.name as string | null) ?? null,
       host_name: host,
       address: (s.address as string | null) ?? null,
       installation_type: (s.installation_type as string | null) ?? null,
@@ -76,11 +97,14 @@ export default async function SitesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-semibold">Sites</h1>
-        <p className="text-sm text-navy-700/70">
-          Every solar host location on the platform.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-2xl font-semibold">Sites</h1>
+          <p className="text-sm text-navy-700/70">
+            Every solar host location on the platform.
+          </p>
+        </div>
+        <CreateSiteButton hosts={hosts} />
       </div>
       <SitesTable rows={rows} />
     </div>
@@ -89,6 +113,7 @@ export default async function SitesPage() {
 
 export interface SiteRow {
   id: string;
+  name: string | null;
   host_name: string | null;
   address: string | null;
   installation_type: string | null;

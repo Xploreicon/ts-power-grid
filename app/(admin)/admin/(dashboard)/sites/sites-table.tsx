@@ -24,6 +24,14 @@ export function SitesTable({ rows }: { rows: SiteRow[] }) {
 
   const columns = React.useMemo<ColumnDef<SiteRow>[]>(
     () => [
+      {
+        accessorKey: "name",
+        header: "Site",
+        cell: ({ row }) =>
+          row.original.name ?? (
+            <span className="text-navy-700/50">—</span>
+          ),
+      },
       { accessorKey: "host_name", header: "Host" },
       { accessorKey: "address", header: "Address" },
       {
