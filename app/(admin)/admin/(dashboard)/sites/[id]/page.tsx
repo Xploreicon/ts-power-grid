@@ -26,7 +26,7 @@ export default async function SiteDetailPage({
   const { data: site } = await supabase
     .from("sites")
     .select(
-      "id, name, host_id, address, installation_type, status, installed_at, solar_capacity_kw, battery_capacity_kwh, latitude, longitude, profiles:host_id(id, full_name, phone, email, kyc_status)",
+      "id, name, host_id, address, installation_type, status, installed_at, solar_capacity_kw, battery_capacity_kwh, profiles:host_id(id, full_name, phone, email, kyc_status)",
     )
     .eq("id", params.id)
     .maybeSingle();
