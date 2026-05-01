@@ -11,10 +11,17 @@ site_id: "00000000-0000-0000-0000-000000000000"
 mqtt:
   host: "639f4ba970674c47b69fac1be5b7181f.s1.eu.hivemq.cloud"
   port: 8883
-  # mTLS material. All three files must be present at boot.
-  ca_cert: "/etc/ts-gateway/certs/ca.crt"
-  client_cert: "/etc/ts-gateway/certs/client.crt"
-  client_key: "/etc/ts-gateway/certs/client.key"
+  # TLS material. Empty (the default for HiveMQ Cloud) → use the system
+  # CA bundle and authenticate via MQTT_USERNAME / MQTT_PASSWORD env
+  # vars. For an EMQX-style mTLS broker, set all three paths and drop
+  # the env credentials.
+  ca_cert: ""
+  client_cert: ""
+  client_key: ""
+  # Credentials are NOT in this file. config.load() reads them from the
+  # MQTT_USERNAME / MQTT_PASSWORD environment variables so secrets
+  # never land in git. The systemd unit at install time gets them via
+  # /etc/ts-gateway/credentials (see install.sh).
   keepalive_sec: 60
   # Last-will published retained when the socket drops uncleanly — the
   # backend picks this up as an offline signal within the keepalive window.

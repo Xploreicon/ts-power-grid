@@ -5,6 +5,7 @@ lives in the module that uses the field.
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -16,9 +17,19 @@ import yaml
 class MqttConfig:
     host: str
     port: int
-    ca_cert: str
-    client_cert: str
-    client_key: str
+    # All TLS material is optional. Leave empty to use the system trust
+    # store (HiveMQ Cloud and other public-CA brokers); set just
+    # `ca_cert` to pin a private CA; set all three for mTLS to a
+    # broker that authenticates clients by certificate.
+    ca_cert: str = ""
+    client_cert: str = ""
+    client_key: str = ""
+    # Username + password are read from the MQTT_USERNAME / MQTT_PASSWORD
+    # environment variables at config.load() time so we never commit
+    # secrets to config.yaml. Empty strings = no SASL credentials sent
+    # (relevant when authenticating purely via mTLS).
+    username: str = ""
+    password: str = ""
     keepalive_sec: int = 60
     will_topic_suffix: str = "gateway/heartbeat"
 
@@ -88,9 +99,15 @@ class Config:
 
 def load(path: str | Path) -> Config:
     raw: dict[str, Any] = yaml.safe_load(Path(path).read_text())
+    # MQTT credentials live in the environment, not the YAML — keeps
+    # secrets out of git and lets a single config.yaml ship across
+    # dev/staging/prod with only the broker creds rotating per env.
+    mqtt_raw = dict(raw.get("mqtt", {}))
+    mqtt_raw.setdefault("username", os.environ.get("MQTT_USERNAME", ""))
+    mqtt_raw.setdefault("password", os.environ.get("MQTT_PASSWORD", ""))
     return Config(
         site_id=str(raw["site_id"]),
-        mqtt=MqttConfig(**raw["mqtt"]),
+        mqtt=MqttConfig(**mqtt_raw),
         intervals=Intervals(**raw.get("intervals", {})),
         offline_queue=OfflineQueue(**raw.get("offline_queue", {})),
         modbus=ModbusConfig(**raw.get("modbus", {})),

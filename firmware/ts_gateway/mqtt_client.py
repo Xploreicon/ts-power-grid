@@ -53,12 +53,36 @@ class MqttClient:
             protocol=mqtt.MQTTv5,
             callback_api_version=mqtt.CallbackAPIVersion.VERSION2,
         )
+        # TLS configuration — three modes, picked by which fields are set:
+        #
+        #   1. mTLS: client_cert + client_key (+ optional ca_cert).
+        #      Used by EMQX with cert-CN-keyed ACL. CA pin recommended.
+        #   2. Username/password over TLS with a public CA: ca_cert empty,
+        #      client_cert/client_key empty. Used by HiveMQ Cloud.
+        #   3. Username/password over TLS with a private CA: ca_cert set,
+        #      client_cert/client_key empty.
+        #
+        # paho's `tls_set` accepts None for any of the three paths, but
+        # passing an empty string raises FileNotFoundError. Coerce to
+        # None up-front so YAML omissions and explicit "" both work.
+        ca = self._cfg.mqtt.ca_cert or None
+        cert = self._cfg.mqtt.client_cert or None
+        key = self._cfg.mqtt.client_key or None
         client.tls_set(
-            ca_certs=self._cfg.mqtt.ca_cert,
-            certfile=self._cfg.mqtt.client_cert,
-            keyfile=self._cfg.mqtt.client_key,
+            ca_certs=ca,
+            certfile=cert,
+            keyfile=key,
             tls_version=ssl.PROTOCOL_TLSv1_2,
         )
+
+        # SASL credentials — when set, the broker authenticates the
+        # connection via username/password rather than (or alongside)
+        # mTLS. Skipped entirely when both fields are empty.
+        if self._cfg.mqtt.username:
+            client.username_pw_set(
+                self._cfg.mqtt.username,
+                self._cfg.mqtt.password or None,
+            )
         # Last-will — broker publishes this if the socket drops without
         # a clean DISCONNECT. Backend flips the gateway to offline.
         will = {
