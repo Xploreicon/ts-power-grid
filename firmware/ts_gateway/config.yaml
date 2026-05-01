@@ -9,7 +9,7 @@
 site_id: "00000000-0000-0000-0000-000000000000"
 
 mqtt:
-  host: "mqtt.tspowergrid.com"
+  host: "639f4ba970674c47b69fac1be5b7181f.s1.eu.hivemq.cloud"
   port: 8883
   # mTLS material. All three files must be present at boot.
   ca_cert: "/etc/ts-gateway/certs/ca.crt"
