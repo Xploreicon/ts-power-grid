@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sendDailySummary } from "@/lib/whatsapp/proactive";
+import { sendDailySummary } from "@/lib/messaging";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

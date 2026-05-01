@@ -11,7 +11,7 @@ import { issueDisconnectCommand } from "./disconnect";
 import {
   sendDisconnectNotification,
   sendLowBalanceWarning,
-} from "@/lib/whatsapp/proactive";
+} from "@/lib/messaging";
 
 /**
  * Billing engine — single public entry point `processReading()` wraps the

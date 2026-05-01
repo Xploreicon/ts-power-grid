@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AUDIT_EVENT, LOW_BALANCE_THRESHOLD_KOBO } from "./config";
 import { issueReconnectCommand } from "./disconnect";
-import { sendReconnectConfirmation } from "@/lib/whatsapp/proactive";
+import { sendReconnectConfirmation } from "@/lib/messaging";
 import { dispatchNotification } from "@/lib/notifications/dispatcher";
 
 /**

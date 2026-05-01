@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/hooks/useUser";
 import { useSite } from "@/lib/hooks/host/useSite";
 import { Button, Input } from "@/components/ui";
@@ -53,8 +52,6 @@ export default function AddNeighborPage() {
 
     setSubmitting(true);
     try {
-      const supabase = createClient();
-
       // Find meter via admin-backed API (RLS on meters blocks direct lookup)
       const lookupRes = await fetch(
         `/api/host/meters/lookup?serial=${encodeURIComponent(values.meterSerial)}`,
@@ -68,20 +65,29 @@ export default function AddNeighborPage() {
         meter: { id: string };
       };
 
-      const { error } = await supabase.rpc("connect_neighbor", {
-        p_host_id: profile.id,
-        p_neighbor_phone: phone,
-        p_meter_id: meter.id,
-        p_price_per_kwh: values.pricePerKwh,
+      // Server-side wrapper: runs `connect_neighbor`, then fires the
+      // welcome message on the active channel (Telegram or WhatsApp).
+      // Doing this here instead of from the client keeps messaging
+      // credentials out of the browser.
+      const connectRes = await fetch("/api/host/neighbors/connect", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          neighborPhone: phone,
+          meterId: meter.id,
+          pricePerKwh: values.pricePerKwh,
+        }),
       });
-
-      if (error) {
-        if (error.message.includes("profile")) {
+      if (!connectRes.ok) {
+        const { error: code } = (await connectRes.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        if (code === "neighbor_not_found") {
           toast.error(
             "Neighbor hasn't signed up yet. Ask them to download the T&S app first.",
           );
         } else {
-          throw error;
+          throw new Error(code ?? "connect failed");
         }
         return;
       }
