@@ -17,14 +17,21 @@ export function StatGrid({ connections, earnings, telemetry }: StatGridProps) {
   return (
     <div className="grid grid-cols-2 gap-3 mt-4">
       <StatCard
-        variant="dark"
-        label="This week"
-        value={earnings ? formatNgn(earnings.period, { compact: true }) : "—"}
+        variant="highlight"
+        label="Current power output"
+        value={telemetry ? `${telemetry.currentPowerKw.toFixed(2)} kW` : "—"}
+        useMono
+        className="col-span-2"
+      />
+      <StatCard
+        label="Generation today"
+        value={telemetry ? `${telemetry.kwhToday.toFixed(1)} kWh` : "—"}
         useMono
       />
       <StatCard
-        label="Neighbors"
-        value={total === 0 ? "0" : `${active} / ${total}`}
+        variant="dark"
+        label="This week"
+        value={earnings ? formatNgn(earnings.period, { compact: true }) : "—"}
         useMono
       />
       <StatCard
@@ -33,19 +40,8 @@ export function StatGrid({ connections, earnings, telemetry }: StatGridProps) {
         useMono
       />
       <StatCard
-        label="Generation today"
-        value={telemetry ? `${telemetry.kwhToday.toFixed(1)} kWh` : "—"}
-        useMono
-      />
-      <StatCard
-        variant="highlight"
-        label="Current power"
-        value={telemetry ? `${telemetry.currentPowerKw.toFixed(2)} kW` : "—"}
-        useMono
-      />
-      <StatCard
-        label="Grid uptime"
-        value="99.8%"
+        label="Neighbors"
+        value={total === 0 ? "0" : `${active} / ${total}`}
         useMono
       />
     </div>
