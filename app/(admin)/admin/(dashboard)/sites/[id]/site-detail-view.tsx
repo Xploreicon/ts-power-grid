@@ -6,6 +6,11 @@ import { StatusBadge } from "@/components/admin/status-badge";
 import { AuditLog } from "@/components/admin/audit-log";
 import { formatNgnKobo } from "@/lib/admin/format";
 import { cn } from "@/lib/utils/cn";
+import { CopyableId } from "./copyable-id";
+import {
+  AddGatewayButton,
+  AddMeterButton,
+} from "./add-equipment-dialogs";
 
 type Tab = "equipment" | "consumption" | "financial" | "people" | "activity";
 
@@ -29,8 +34,11 @@ interface Gateway {
 }
 interface Meter {
   id: string;
+  gateway_id: string | null;
   serial_number: string;
   meter_type: string;
+  modbus_address: number | null;
+  driver: string | null;
   status: string;
   last_reading_kwh: number | null;
 }
@@ -57,6 +65,7 @@ interface AuditRow {
 }
 
 export function SiteDetailView({
+  siteId,
   site,
   gateways,
   meters,
@@ -64,6 +73,7 @@ export function SiteDetailView({
   billingAudit,
   installments,
 }: {
+  siteId: string;
   site: Site;
   gateways: Gateway[];
   meters: Meter[];
@@ -153,11 +163,21 @@ export function SiteDetailView({
           </div>
 
           <div className="rounded-2xl border border-navy-100 bg-white p-5">
-            <h2 className="font-display text-lg font-semibold">Gateways</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Gateways</h2>
+                <p className="text-xs text-navy-700/60">
+                  Site UUID:{" "}
+                  <CopyableId id={siteId} className="ml-1 align-middle" />
+                </p>
+              </div>
+              <AddGatewayButton siteId={siteId} />
+            </div>
             <table className="mt-3 w-full text-left text-sm">
               <thead className="text-xs uppercase tracking-wider text-navy-700/60">
                 <tr>
                   <th className="py-2">Serial</th>
+                  <th>Gateway ID</th>
                   <th>Status</th>
                   <th>Firmware</th>
                   <th>Last seen</th>
@@ -166,8 +186,9 @@ export function SiteDetailView({
               <tbody>
                 {gateways.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-4 text-center text-navy-700/60">
-                      No gateways registered.
+                    <td colSpan={5} className="py-4 text-center text-navy-700/60">
+                      No gateways registered. Click <em>Add gateway</em> to
+                      provision one.
                     </td>
                   </tr>
                 ) : (
@@ -175,9 +196,14 @@ export function SiteDetailView({
                     <tr key={g.id} className="border-t border-navy-100">
                       <td className="py-2 font-mono">{g.serial_number}</td>
                       <td>
+                        <CopyableId id={g.id} short />
+                      </td>
+                      <td>
                         <StatusBadge status={g.status} />
                       </td>
-                      <td className="font-mono text-xs">{g.firmware_version ?? "—"}</td>
+                      <td className="font-mono text-xs">
+                        {g.firmware_version ?? "—"}
+                      </td>
                       <td className="font-mono text-xs">
                         {g.last_seen_at
                           ? format(new Date(g.last_seen_at), "d MMM HH:mm")
@@ -191,25 +217,64 @@ export function SiteDetailView({
           </div>
 
           <div className="rounded-2xl border border-navy-100 bg-white p-5">
-            <h2 className="font-display text-lg font-semibold">Meters</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Meters</h2>
+                <p className="text-xs text-navy-700/60">
+                  Click a meter ID to copy it into the Pi&apos;s{" "}
+                  <code className="font-mono">config.yaml</code>.
+                </p>
+              </div>
+              <AddMeterButton
+                siteId={siteId}
+                gateways={gateways.map((g) => ({
+                  id: g.id,
+                  serial_number: g.serial_number,
+                }))}
+              />
+            </div>
             <table className="mt-3 w-full text-left text-sm">
               <thead className="text-xs uppercase tracking-wider text-navy-700/60">
                 <tr>
-                  <th className="py-2">Serial</th>
-                  <th>Type</th>
+                  <th className="py-2">Meter ID</th>
+                  <th>Serial</th>
+                  <th>Role</th>
+                  <th>Modbus</th>
+                  <th>Driver</th>
                   <th>Status</th>
                   <th>Last reading</th>
                 </tr>
               </thead>
               <tbody>
-                {meters.map((m) => (
-                  <tr key={m.id} className="border-t border-navy-100">
-                    <td className="py-2 font-mono">{m.serial_number}</td>
-                    <td className="capitalize">{m.meter_type}</td>
-                    <td><StatusBadge status={m.status} /></td>
-                    <td className="font-mono">{m.last_reading_kwh ?? "—"} kWh</td>
+                {meters.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-4 text-center text-navy-700/60">
+                      {gateways.length === 0
+                        ? "Add a gateway first, then meters can be assigned to it."
+                        : "No meters yet. Click Add meter to provision one."}
+                    </td>
                   </tr>
-                ))}
+                ) : (
+                  meters.map((m) => (
+                    <tr key={m.id} className="border-t border-navy-100">
+                      <td className="py-2">
+                        <CopyableId id={m.id} />
+                      </td>
+                      <td className="font-mono">{m.serial_number}</td>
+                      <td className="capitalize">{m.meter_type}</td>
+                      <td className="font-mono">
+                        {m.modbus_address ?? "—"}
+                      </td>
+                      <td className="font-mono text-xs">{m.driver ?? "—"}</td>
+                      <td>
+                        <StatusBadge status={m.status} />
+                      </td>
+                      <td className="font-mono">
+                        {m.last_reading_kwh ?? "—"} kWh
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
