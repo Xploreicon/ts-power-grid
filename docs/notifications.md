@@ -62,7 +62,7 @@ Rules baked into `lib/whatsapp`:
 Provider: Telegram Bot API via `telegraf`.
 
 ```
-neighbor ──▶ Telegram ──▶ POST /api/webhooks/telegram
+neighbor ──▶ Telegram ──▶ POST /api/telegram/webhook
                             │  (verify X-Telegram-Bot-Api-Secret-Token)
                             ▼
                        handleUpdate(update)
@@ -119,7 +119,7 @@ Once per environment:
 
 ```bash
 curl -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
-  -d "url=https://app.tspowergrid.com/api/webhooks/telegram" \
+  -d "url=https://app.tspowergrid.com/api/telegram/webhook" \
   -d "secret_token=${TELEGRAM_WEBHOOK_SECRET}" \
   -d 'allowed_updates=["message","callback_query"]'
 ```
@@ -182,7 +182,7 @@ curl -X POST http://localhost:3000/api/webhooks/whatsapp \
 Telegram (skip the secret in dev — set `TELEGRAM_WEBHOOK_SECRET=` empty):
 
 ```bash
-curl -X POST http://localhost:3000/api/webhooks/telegram \
+curl -X POST http://localhost:3000/api/telegram/webhook \
   -H 'content-type: application/json' \
   -d '{ "update_id": 1, "message": {
         "message_id": 1, "date": 1714492800,
