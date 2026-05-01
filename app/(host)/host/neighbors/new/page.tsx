@@ -173,7 +173,6 @@ export default function AddNeighborPage() {
             </span>
             <Input
               type="number"
-              step="100"
               className="pl-7 font-mono"
               placeholder="280"
               {...register("pricePerKwh", { valueAsNumber: true })}

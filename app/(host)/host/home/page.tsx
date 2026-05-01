@@ -5,6 +5,7 @@ import { useWallet } from "@/lib/hooks/host/useWallet";
 import { useConnections } from "@/lib/hooks/host/useConnections";
 import { useTransactions } from "@/lib/hooks/host/useTransactions";
 import { useEarnings } from "@/lib/hooks/host/useEarnings";
+import { useHostTelemetry } from "@/lib/hooks/host/useHostTelemetry";
 import { useRealtimeWallet } from "@/lib/hooks/host/useRealtimeWallet";
 import { useRealtimeConnections } from "@/lib/hooks/host/useRealtimeConnections";
 import { formatNgn } from "@/lib/utils/money";
@@ -22,6 +23,7 @@ export default function HostHomePage() {
   const { data: connections = [] } = useConnections();
   const { data: transactions = [] } = useTransactions(10);
   const { data: earnings } = useEarnings("week");
+  const { data: telemetry } = useHostTelemetry();
 
   // Wire up realtime subscriptions
   useRealtimeWallet();
@@ -74,7 +76,7 @@ export default function HostHomePage() {
       </div>
 
       {/* ── Stats grid ── */}
-      <StatGrid connections={connections} earnings={earnings} />
+      <StatGrid connections={connections} earnings={earnings} telemetry={telemetry} />
 
       {/* ── Quick actions ── */}
       <QuickActions />
