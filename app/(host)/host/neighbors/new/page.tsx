@@ -82,17 +82,26 @@ export default function AddNeighborPage() {
         const { error: code } = (await connectRes.json().catch(() => ({}))) as {
           error?: string;
         };
-        if (code === "neighbor_not_found") {
-          toast.error(
-            "Neighbor hasn't signed up yet. Ask them to download the T&S app first.",
-          );
+        if (code === "self_connection") {
+          toast.error("You can't connect yourself as a neighbor.");
+        } else if (code === "meter_unavailable") {
+          toast.error("That meter is already linked to another connection.");
         } else {
           throw new Error(code ?? "connect failed");
         }
         return;
       }
 
-      toast.success("Neighbor connected successfully!");
+      const { status } = (await connectRes.json().catch(() => ({}))) as {
+        status?: "active" | "pending";
+      };
+      if (status === "pending") {
+        toast.success(
+          "Invite sent. Your neighbor gets an SMS — they'll go live once they finish sign-up.",
+        );
+      } else {
+        toast.success("Neighbor connected.");
+      }
       router.push("/host/neighbors");
     } catch (err) {
       console.error(err);
@@ -121,7 +130,8 @@ export default function AddNeighborPage() {
           Add Neighbor
         </h1>
         <p className="text-navy-500 text-sm mt-1">
-          Your neighbor must already have a T&amp;S account.
+          We&apos;ll text your neighbor an invite if they aren&apos;t signed
+          up yet.
         </p>
       </div>
 
