@@ -16,7 +16,7 @@ export type GatewayStatus = "provisioned" | "online" | "offline" | "faulty";
 export type MeterType = "host" | "neighbor";
 export type MeterStatus = "active" | "disconnected" | "faulty" | "removed";
 
-export type ConnectionStatus = "active" | "suspended" | "ended";
+export type ConnectionStatus = "active" | "suspended" | "ended" | "pending";
 
 export type TransactionType =
   | "topup"
@@ -111,10 +111,11 @@ export interface Meter {
 export interface Connection {
   id: Uuid;
   host_id: Uuid;
-  neighbor_id: Uuid;
+  neighbor_id: Uuid | null;
   meter_id: Uuid;
   current_price_per_kwh: number;
   status: ConnectionStatus;
+  pending_phone: string | null;
   started_at: Iso;
   ended_at: Iso | null;
   created_at: Iso;

@@ -214,7 +214,7 @@ export default function SupportPage() {
                   <option value="">Select a neighbor</option>
                   {connections.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.neighbor.full_name ?? c.neighbor.phone ?? "Neighbor"}
+                      {c.neighbor?.full_name ?? c.neighbor?.phone ?? c.pending_phone ?? "Neighbor"}
                     </option>
                   ))}
                 </select>

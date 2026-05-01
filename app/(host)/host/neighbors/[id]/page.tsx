@@ -73,9 +73,9 @@ export default function NeighborDetailPage() {
     );
   }
 
-  const { neighbor, meter, status, current_price_per_kwh, started_at } =
+  const { neighbor, meter, status, current_price_per_kwh, started_at, pending_phone } =
     connection;
-  const displayName = neighbor.full_name ?? neighbor.phone ?? "Unknown";
+  const displayName = neighbor?.full_name ?? neighbor?.phone ?? pending_phone ?? "Unknown";
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
@@ -97,9 +97,9 @@ export default function NeighborDetailPage() {
             </div>
             <div>
               <h1 className="font-bold text-lg leading-tight">{displayName}</h1>
-              {neighbor.phone && (
+              {(neighbor?.phone || pending_phone) && (
                 <p className="text-navy-400 text-xs font-mono mt-0.5">
-                  {neighbor.phone}
+                  {neighbor?.phone ?? pending_phone}
                 </p>
               )}
             </div>
@@ -108,14 +108,14 @@ export default function NeighborDetailPage() {
             variant={
               status === "active"
                 ? "success"
-                : status === "suspended"
+                : status === "suspended" || status === "pending"
                   ? "warning"
                   : "default"
             }
             dot={status === "active"}
             pulse={status === "active"}
           >
-            {status}
+            {status === "pending" ? "Pending signup" : status}
           </Badge>
         </div>
 
@@ -169,9 +169,9 @@ export default function NeighborDetailPage() {
 
       {/* Actions */}
       <div className="flex gap-3 mb-6">
-        {neighbor.phone && (
+        {(neighbor?.phone || pending_phone) && (
           <Button variant="secondary" size="sm" asChild className="flex-1">
-            <a href={`tel:${neighbor.phone}`}>
+            <a href={`tel:${neighbor?.phone ?? pending_phone}`}>
               <PhoneCall className="h-4 w-4 mr-2" />
               Call
             </a>

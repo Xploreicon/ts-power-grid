@@ -42,7 +42,7 @@ export function ActivityFeed({ transactions, connections }: ActivityFeedProps) {
   const connMap: Record<string, string> = Object.fromEntries(
     connections.map((c) => [
       c.id,
-      c.neighbor.full_name ?? c.neighbor.phone ?? "Neighbor",
+      c.neighbor?.full_name ?? c.neighbor?.phone ?? c.pending_phone ?? "Neighbor",
     ]),
   );
 
