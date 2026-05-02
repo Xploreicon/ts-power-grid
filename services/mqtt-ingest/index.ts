@@ -192,6 +192,14 @@ async function deadLetter(
 // Handlers
 // ---------------------------------------------------------------------------
 
+/** Statuses where the RPC actually inserts a telemetry row. */
+const TELEMETRY_ROW_WRITTEN: ReadonlySet<string> = new Set([
+  "first_reading",
+  "host_meter",
+  "flat_reading",
+  "processed",
+]);
+
 async function handleTelemetry(
   supabase: SupabaseClient,
   client: MqttClient,
@@ -203,12 +211,61 @@ async function handleTelemetry(
     cumulativeKwh: body.cumulative_kwh,
     timestamp: body.timestamp,
   };
+
+  // Power-quality fields the firmware sends but the RPC doesn't write.
+  const voltage =
+    typeof body.voltage === "number" && isFinite(body.voltage)
+      ? body.voltage
+      : null;
+  const current =
+    typeof body.current === "number" && isFinite(body.current)
+      ? body.current
+      : null;
+  const power_factor =
+    typeof body.power_factor === "number" && isFinite(body.power_factor)
+      ? body.power_factor
+      : null;
+
   if (DRY_RUN) {
-    console.log("[ingest] (dry) telemetry", input);
+    console.log("[ingest] (dry) telemetry", {
+      ...input,
+      voltage,
+      current,
+      power_factor,
+    });
     return;
   }
   try {
     const result = await processReading(supabase, input);
+
+    // Backfill voltage / current / power_factor on the telemetry row
+    // that process_meter_reading just inserted. Only attempt the
+    // update when (a) the RPC actually wrote a row and (b) at least
+    // one power-quality field is present in the payload.
+    if (
+      TELEMETRY_ROW_WRITTEN.has(result.status) &&
+      (voltage !== null || current !== null || power_factor !== null)
+    ) {
+      const patch: Record<string, number> = {};
+      if (voltage !== null) patch.voltage = voltage;
+      if (current !== null) patch.current = current;
+      if (power_factor !== null) patch.power_factor = power_factor;
+
+      const { error: pqErr } = await supabase
+        .from("telemetry")
+        .update(patch)
+        .eq("meter_id", parsed.meterId)
+        .eq("timestamp", input.timestamp as string);
+
+      if (pqErr) {
+        // Non-fatal — the core reading is already persisted.
+        console.error(
+          "[ingest] power-quality backfill failed:",
+          pqErr.message,
+        );
+      }
+    }
+
     // Auto-disconnect: when the SQL function says the wallet ran dry,
     // publish a relay-open on the same broker connection. We're
     // already inside its message loop — no second connection needed.
