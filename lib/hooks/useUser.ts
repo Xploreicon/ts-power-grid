@@ -23,16 +23,20 @@ export function useUser(): Profile | null {
   const [userId, setUserId] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
+    let mounted = true;
     const supabase = createClient();
-    // Initial load
     supabase.auth.getUser().then(({ data: { user } }) => {
-      setUserId(user?.id ?? null);
+      if (mounted) setUserId(user?.id ?? null);
     });
-    // Keep in sync with auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_, session) => setUserId(session?.user?.id ?? null),
+      (_, session) => {
+        if (mounted) setUserId(session?.user?.id ?? null);
+      },
     );
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const { data } = useSWR(
