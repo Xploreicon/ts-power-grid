@@ -5,10 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/hooks/useUser";
 import type { Connection, Profile, Meter } from "@/lib/supabase/types";
 
-export type ConnectionWithNeighbor = Omit<Connection, "neighbor_id" | "meter_id"> & {
-  neighbor_id: string;
+export type ConnectionWithNeighbor = Omit<Connection, "meter_id"> & {
   meter_id: string;
-  neighbor: Pick<Profile, "id" | "full_name" | "phone">;
+  neighbor: Pick<Profile, "id" | "full_name" | "phone"> | null;
   meter: Pick<Meter, "id" | "serial_number" | "status" | "last_reading_kwh">;
 };
 

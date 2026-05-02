@@ -7,17 +7,19 @@ interface NeighborCardProps {
 }
 
 export function NeighborCard({ connection }: NeighborCardProps) {
-  const { neighbor, meter, status, current_price_per_kwh } = connection;
+  const { neighbor, meter, status, current_price_per_kwh, pending_phone } = connection;
+  const isPending = status === "pending" || !neighbor;
 
   const initials =
-    neighbor.full_name
+    neighbor?.full_name
       ?.split(" ")
       .map((n: string) => n[0])
       .slice(0, 2)
       .join("")
-      .toUpperCase() ?? "N";
+      .toUpperCase() ?? "?";
 
-  const displayName = neighbor.full_name ?? neighbor.phone ?? "Unknown";
+  const displayName =
+    neighbor?.full_name ?? neighbor?.phone ?? pending_phone ?? "Unknown";
 
   return (
     <Link
@@ -45,7 +47,7 @@ export function NeighborCard({ connection }: NeighborCardProps) {
         pulse={status === "active"}
         className="flex-shrink-0"
       >
-        {status}
+        {isPending ? "Pending signup" : status}
       </Badge>
     </Link>
   );
