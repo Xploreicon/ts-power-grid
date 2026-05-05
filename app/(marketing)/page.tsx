@@ -1,31 +1,29 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { 
-  Users, 
-  Droplets, 
-  Building2, 
+import {
+  Users,
+  Droplets,
+  Building2,
   Smartphone,
   CheckCircle2,
   Cpu,
   Wallet,
   ShieldCheck,
-  LineChart
+  LineChart,
+  Sun,
+  Zap,
+  ArrowRight,
+  Plus,
 } from "lucide-react";
-import { 
-  Button, 
-  Badge, 
+import {
+  Button,
+  Badge,
   Nav,
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription
 } from "@/components/ui";
 import { Marquee } from "@/components/marketing/marquee";
-import { LeadForm } from "@/components/marketing/lead-form";
 import { FadeIn } from "@/components/marketing/fade-in";
 
 export default function MarketingPage() {
@@ -37,16 +35,13 @@ export default function MarketingPage() {
 }
 
 function MarketingPageContent() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
     <div className="min-h-screen bg-offwhite selection:bg-yellow-200">
       {/* 1. Navigation */}
       <Nav
         links={[
           { label: "How it works", href: "#how-it-works" },
-          { label: "Paths", href: "#paths" },
+          { label: "Packages", href: "#packages" },
           { label: "The App", href: "#app" },
           { label: "For Business", href: "#business" },
         ]}
@@ -80,7 +75,7 @@ function MarketingPageContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <FadeIn className="space-y-8">
                 <Badge variant="success" dot pulse className="py-1 px-4 text-sm font-bold bg-green-50">
-                  Now onboarding Lagos pilot hosts
+                  Lagos pilot — 50 slots only
                 </Badge>
                 <h1 className="text-5xl lg:text-7xl font-display font-bold text-navy-950 leading-[1.1] tracking-tight">
                   Be your own <span className="italic bg-yellow-500 text-navy-950 px-3 rounded-lg">NEPA.</span> <br />
@@ -91,10 +86,13 @@ function MarketingPageContent() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button asChild size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-yellow-500/20">
-                    <Link href="/waitlist">Join the waitlist</Link>
+                    <Link href="/waitlist">
+                      Join the waitlist
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </Link>
                   </Button>
                   <Button asChild variant="secondary" size="lg" className="h-14 px-8 text-lg font-bold">
-                    <a href="#how-it-works">See how it works</a>
+                    <a href="#packages">See the packages</a>
                   </Button>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-4 border-t border-navy-100">
@@ -115,10 +113,10 @@ function MarketingPageContent() {
 
               <FadeIn direction="left" className="relative lg:ml-auto">
                 <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-                  <Image 
-                    src="/images/hero-dashboard.png" 
-                    alt="T&S Power Grid Dashboard" 
-                    width={600} 
+                  <Image
+                    src="/images/hero-dashboard.png"
+                    alt="T&S Power Grid Dashboard"
+                    width={600}
                     height={600}
                     className="w-full h-auto"
                     priority
@@ -142,7 +140,7 @@ function MarketingPageContent() {
         </section>
 
         {/* 3. Scrolling Marquee */}
-        <Marquee 
+        <Marquee
           items={[
             "Infrastructure for micro-utilities",
             "Made in Lagos",
@@ -162,30 +160,30 @@ function MarketingPageContent() {
                 Solar you own. Power you sell.
               </h2>
             </FadeIn>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
               {[
-                { 
-                  step: "01", 
-                  title: "Install or Upgrade", 
+                {
+                  step: "01",
+                  title: "Install or Upgrade",
                   desc: "Choose a full stack or use our upgrade kit for your existing solar. We handle the grid-balancing hardware.",
                   icon: Cpu
                 },
-                { 
-                  step: "02", 
-                  title: "Invite Neighbors", 
+                {
+                  step: "02",
+                  title: "Invite Neighbors",
                   desc: "Neighbors within 200m join via the app. No heavy cables, just smart metering and local distribution.",
                   icon: Users
                 },
-                { 
-                  step: "03", 
-                  title: "Earn Automatically", 
+                {
+                  step: "03",
+                  title: "Earn Automatically",
                   desc: "As neighbors consume power, your wallet grows in real-time. Withdraw earnings directly to your bank.",
                   icon: Wallet
                 }
               ].map((item, idx) => (
-                <FadeIn 
-                  key={idx} 
+                <FadeIn
+                  key={idx}
                   delay={idx * 0.1}
                   className="group p-8 bg-white rounded-2xl border border-navy-100 hover:border-yellow-500 transition-all hover:shadow-xl"
                 >
@@ -205,80 +203,177 @@ function MarketingPageContent() {
           </div>
         </section>
 
-        {/* 5. Two Paths */}
-        <section id="paths" className="py-24 bg-white overflow-hidden">
+        {/* 5. Packages (replaces Two Paths) */}
+        <section id="packages" className="py-24 bg-white overflow-hidden">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
-            <FadeIn className="text-center">
-              <h2 className="text-4xl font-display font-bold text-navy-950">Choose your path to income</h2>
+            <FadeIn className="text-center space-y-4">
+              <span className="text-sm font-bold tracking-widest text-navy-900 uppercase">PACKAGES</span>
+              <h2 className="text-4xl lg:text-6xl font-display font-bold text-navy-950">Choose your path to income</h2>
+              <p className="text-navy-600 font-sans max-w-2xl mx-auto">
+                Whether you have existing solar or starting fresh, there&apos;s a package that fits your situation and budget.
+              </p>
             </FadeIn>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-              <FadeIn className="bg-navy-900 rounded-[32px] p-8 lg:p-12 text-white flex flex-col justify-between">
+
+            {/* Primary 3 packages — 1-column stack for max readability */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Package 1: IBPMN */}
+              <FadeIn className="bg-white rounded-[32px] border-2 border-navy-100 p-8 flex flex-col justify-between hover:border-yellow-500 transition-colors group">
                 <div>
-                  <div className="flex justify-between items-start mb-8">
-                    <div>
-                      <h3 className="text-3xl font-display font-bold mb-2">Full Stack Host</h3>
-                      <p className="text-white/70 font-sans">For sites with no existing solar.</p>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Badge className="bg-navy-50 text-navy-700 border-navy-100 text-[10px] uppercase tracking-widest font-bold">
+                      Lowest entry · Fastest install
+                    </Badge>
+                  </div>
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="h-12 w-12 rounded-2xl bg-yellow-50 flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-500 transition-colors">
+                      <Sun className="h-6 w-6 text-yellow-600 group-hover:text-navy-950 transition-colors" />
                     </div>
-                    <div className="text-right">
-                      <span className="font-mono text-3xl font-bold block">₦6M</span>
-                      <span className="text-xs uppercase text-white/70 font-bold tracking-widest">STARTING AT</span>
+                    <div>
+                      <h3 className="text-2xl font-display font-bold text-navy-950">&ldquo;I Better Pass My Neighbour&rdquo;</h3>
+                      <p className="text-navy-500 text-sm font-sans mt-1">For 9-to-5ers with small solar (1-3kW)</p>
                     </div>
                   </div>
-                  <ul className="space-y-4 mb-12">
-                    {[
-                      "8kW Inverter + 10kWh Battery",
-                      "12 High-Efficiency Solar Panels",
-                      "T&S Micro-Grid Controller & Meter",
-                      "Full Professional Installation",
-                      "Grid-Scale Maintenance Support"
-                    ].map((feature, i) => (
-                      <li key={i} className="flex items-center space-x-3 text-white">
-                        <CheckCircle2 className="h-5 w-5 text-yellow-500 shrink-0" />
-                        <span className="text-sm font-medium">{feature}</span>
+                  <p className="text-navy-700 font-sans text-sm leading-relaxed mb-6 italic">
+                    &ldquo;Your solar dey work while you dey office. Make e work for your pocket too.&rdquo;
+                  </p>
+                  <ul className="space-y-3 mb-6">
+                    {["Gateway hub", "1-2 smart sub-meters", "Wiring & installation", "Platform access", "WhatsApp billing"].map((f, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-navy-700">
+                        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                        {f}
                       </li>
                     ))}
                   </ul>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="font-mono text-3xl font-bold text-navy-950">₦350K</span>
+                    <span className="text-xs text-navy-400 font-bold uppercase tracking-wider">starting</span>
+                  </div>
+                  <p className="text-xs text-green-600 font-mono font-bold mb-6">
+                    Earn ₦20K – ₦50K/month · 1-2 neighbors
+                  </p>
                 </div>
-                <Button asChild className="w-full h-14 bg-yellow-500 text-navy-950 hover:bg-yellow-400 font-bold">
-                  <Link href="/waitlist">Join Waitlist</Link>
+                <Button asChild className="w-full h-12 font-bold">
+                  <Link href="/waitlist">
+                    Join waitlist
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
                 </Button>
               </FadeIn>
 
-              <FadeIn delay={0.2} className="bg-yellow-500 rounded-[32px] p-8 lg:p-12 text-navy-950 flex flex-col justify-between relative overflow-hidden">
-                <Badge className="absolute top-6 right-6 bg-navy-900 text-yellow-500 uppercase font-bold tracking-tighter">
-                  Fastest entry
+              {/* Package 2: Oga Light (Most Popular) */}
+              <FadeIn delay={0.1} className="bg-yellow-500 rounded-[32px] p-8 flex flex-col justify-between relative overflow-hidden">
+                <Badge className="absolute top-6 right-6 bg-navy-900 text-yellow-500 uppercase font-bold tracking-tighter text-xs">
+                  Most popular
                 </Badge>
                 <div>
-                  <div className="flex justify-between items-start mb-8">
-                    <div>
-                      <h3 className="text-3xl font-display font-bold mb-2">Upgrade Kit</h3>
-                      <p className="text-navy-950/80 font-sans">For existing solar owners.</p>
+                  <div className="flex items-start gap-4 mb-4 mt-2">
+                    <div className="h-12 w-12 rounded-2xl bg-navy-900/10 flex items-center justify-center flex-shrink-0">
+                      <Zap className="h-6 w-6 text-navy-950" />
                     </div>
-                    <div className="text-right">
-                      <span className="font-mono text-3xl font-bold block">₦800K+</span>
-                      <span className="text-xs uppercase text-navy-950/70 font-bold tracking-widest">ONE-TIME FEE</span>
+                    <div>
+                      <h3 className="text-2xl font-display font-bold text-navy-950">&ldquo;Oga Light&rdquo;</h3>
+                      <p className="text-navy-950/70 text-sm font-sans mt-1">Upgrade Kit · Existing solar 3-5kW+</p>
                     </div>
                   </div>
-                  <ul className="space-y-4 mb-12">
-                    {[
-                      "Universal Micro-Grid Controller",
-                      "Smart Bi-Directional Meter",
-                      "T&S Host App Integration",
-                      "Compliance Audit & Testing",
-                      "Dynamic Pricing Software"
-                    ].map((feature, i) => (
-                      <li key={i} className="flex items-center space-x-3 text-navy-950">
-                        <CheckCircle2 className="h-5 w-5 text-navy-900 shrink-0" />
-                        <span className="text-sm font-medium">{feature}</span>
+                  <p className="text-navy-950/80 font-sans text-sm leading-relaxed mb-6 italic">
+                    &ldquo;You already get the power. Now get the platform to sell am properly.&rdquo;
+                  </p>
+                  <ul className="space-y-3 mb-6">
+                    {["Gateway hub", "3 smart sub-meters (expandable)", "Wiring & integration", "Full host dashboard", "Neighbor onboarding support"].map((f, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-navy-950">
+                        <CheckCircle2 className="h-4 w-4 text-navy-900 shrink-0" />
+                        {f}
                       </li>
                     ))}
                   </ul>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="font-mono text-3xl font-bold text-navy-950">₦800K</span>
+                    <span className="text-xs text-navy-950/60 font-bold uppercase tracking-wider">starting</span>
+                  </div>
+                  <p className="text-xs text-navy-900 font-mono font-bold mb-6">
+                    Earn ₦80K – ₦150K/month · 3-5 neighbors
+                  </p>
                 </div>
-                <Button asChild className="w-full h-14 bg-navy-900 text-white hover:bg-navy-950 font-bold">
-                  <Link href="/waitlist">Join Waitlist</Link>
+                <Button asChild className="w-full h-12 bg-navy-900 text-white hover:bg-navy-950 font-bold">
+                  <Link href="/waitlist">
+                    Join waitlist
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </Button>
+              </FadeIn>
+
+              {/* Package 3: Landlord Special */}
+              <FadeIn delay={0.2} className="bg-navy-900 rounded-[32px] p-8 text-white flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-6">
+                    <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500/30 text-[10px] uppercase tracking-widest font-bold">
+                      Highest earning potential
+                    </Badge>
+                  </div>
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="h-12 w-12 rounded-2xl bg-yellow-500/10 flex items-center justify-center flex-shrink-0">
+                      <Building2 className="h-6 w-6 text-yellow-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-display font-bold">&ldquo;Landlord Special&rdquo;</h3>
+                      <p className="text-white/60 text-sm font-sans mt-1">Full Stack · No solar needed</p>
+                    </div>
+                  </div>
+                  <p className="text-white/70 font-sans text-sm leading-relaxed mb-6 italic">
+                    &ldquo;Your compound dey spend ₦500K every month on gen. You fit collect that money instead.&rdquo;
+                  </p>
+                  <ul className="space-y-3 mb-4">
+                    {["Complete solar system install", "Gateway hub + smart meters", "Full platform & dashboard", "Neighbor demand validation", "3-month installment option"].map((f, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm text-white/90">
+                        <CheckCircle2 className="h-4 w-4 text-yellow-500 shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="bg-navy-800 rounded-xl p-3 mb-4">
+                    <p className="text-xs text-yellow-500/80 font-sans">
+                      <span className="font-bold text-yellow-500">Demand-validated:</span> We survey your neighbors first — you only commit when the numbers make sense.
+                    </p>
+                  </div>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="font-mono text-3xl font-bold">₦5.5M</span>
+                    <span className="text-xs text-white/50 font-bold uppercase tracking-wider">3-mo installment</span>
+                  </div>
+                  <p className="text-xs text-yellow-500 font-mono font-bold mb-6">
+                    Earn ₦120K – ₦200K/month · 5+ neighbors
+                  </p>
+                </div>
+                <Button asChild className="w-full h-12 bg-yellow-500 text-navy-950 hover:bg-yellow-400 font-bold">
+                  <Link href="/waitlist">
+                    Join waitlist
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Link>
                 </Button>
               </FadeIn>
             </div>
+
+            {/* Package 4: Area Oga (compact) */}
+            <FadeIn delay={0.3}>
+              <div className="bg-navy-50 rounded-2xl border border-navy-100 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8">
+                <div className="h-12 w-12 rounded-xl bg-white flex items-center justify-center flex-shrink-0 border border-navy-100">
+                  <Plus className="h-6 w-6 text-navy-700" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-display font-bold text-lg text-navy-950">&ldquo;Area Oga&rdquo;</h3>
+                    <Badge className="bg-navy-100 text-navy-600 border-navy-200 text-[10px] uppercase tracking-widest font-bold">
+                      For existing hosts
+                    </Badge>
+                  </div>
+                  <p className="text-navy-600 text-sm font-sans">
+                    Your grid dey grow. We dey grow with you. Add more meters, neighbors, or capacity with modular pricing.
+                  </p>
+                </div>
+                <Button asChild variant="secondary" size="sm" className="flex-shrink-0">
+                  <Link href="/waitlist">Learn more</Link>
+                </Button>
+              </div>
+            </FadeIn>
           </div>
         </section>
 
@@ -290,7 +385,7 @@ function MarketingPageContent() {
               <div className="space-y-4">
                 <span className="text-[10vw] font-display font-bold leading-none text-yellow-500 block">₦180,000</span>
                 <p className="text-white/70 max-w-3xl mx-auto text-xl lg:text-2xl leading-relaxed font-medium">
-                  Typical Lagos SME spends this on petrol for backup power. With T&S, your neighbors pay that to <strong className="text-[#FFB800]">YOU</strong> instead — while you stop spending your own.
+                  With petrol at over <strong className="text-white">₦1,200/litre</strong>, a 5kVA generator burns <strong className="text-white">₦150K–₦250K monthly</strong>. Your neighbors are already spending this. With T&S, they pay <strong className="text-[#FFB800]">YOU</strong> instead.
                 </p>
               </div>
             </FadeIn>
@@ -323,11 +418,11 @@ function MarketingPageContent() {
                  ))}
               </div>
             </FadeIn>
-            
+
             <FadeIn direction="left" className="relative">
-              <Image 
-                src="/images/app-showcase.png" 
-                alt="T&S Power Grid App Screens" 
+              <Image
+                src="/images/app-showcase.png"
+                alt="T&S Power Grid App Screens"
                 width={700}
                 height={700}
                 className="w-full h-auto drop-shadow-3xl"
@@ -348,7 +443,7 @@ function MarketingPageContent() {
                 <Link href="/waitlist">Partner with us</Link>
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 { title: "Water Pumping Stations", icon: Droplets, desc: "Replace expensive diesel generators for community water supply with sustainable solar clusters." },
@@ -371,19 +466,25 @@ function MarketingPageContent() {
         <section className="py-24 bg-yellow-500">
            <FadeIn className="mx-auto max-w-4xl px-4 text-center space-y-8">
               <h2 className="text-4xl lg:text-6xl font-display font-bold text-navy-950">
-                Ready to be your own NEPA?
+                50 pilot slots. Lagos only. First come, first served.
               </h2>
               <p className="text-xl text-navy-950/80 font-sans max-w-2xl mx-auto">
-                We are currently onboarding 50 pilot hosts across Lekki, Victoria Island, and Ikeja. Secure your spot in the energy revolution.
+                Join the waitlist. We&apos;ll survey your site, confirm your package, and lock in your install date.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                  <Button asChild size="lg" className="h-14 px-10 bg-navy-900 text-white hover:bg-navy-950 font-bold">
-                   <Link href="/waitlist">Join the waitlist</Link>
+                   <Link href="/waitlist">
+                     Join the waitlist
+                     <ArrowRight className="h-5 w-5 ml-2" />
+                   </Link>
                  </Button>
                  <Button size="lg" variant="secondary" className="h-14 px-10 border-navy-950 text-navy-950 hover:bg-navy-950/5 font-bold">
                     Download pitch deck
                  </Button>
               </div>
+              <p className="text-sm text-navy-950/60 font-sans">
+                Already have solar? You could be live within 2 weeks of your survey.
+              </p>
            </FadeIn>
         </section>
 
@@ -402,7 +503,7 @@ function MarketingPageContent() {
                     Building the infrastructure for decentralized energy in Africa. Start sharing, start earning.
                   </p>
                 </div>
-                
+
                 <div>
                   <h5 className="font-bold mb-6 text-sm uppercase tracking-widest text-white/80">Product</h5>
                   <ul className="space-y-4 text-white/70 text-sm">
@@ -433,7 +534,7 @@ function MarketingPageContent() {
                   </ul>
                 </div>
              </div>
-             
+
              <div className="pt-12 border-t border-navy-800 flex flex-col md:flex-row justify-between items-center gap-4 text-white/70 text-xs font-medium uppercase tracking-widest">
                 <span>© 2026 T&S Power Grid Limited</span>
                 <span className="text-white/70">Made in Lagos, for Lagos</span>
@@ -446,15 +547,5 @@ function MarketingPageContent() {
         </footer>
       </main>
     </div>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="text-3xl font-display">Book Grid Consultation</DialogTitle>
-          <DialogDescription className="text-base">
-            Fill in your details below. Our specialists will audit your site and estimate your monthly earnings.
-          </DialogDescription>
-        </DialogHeader>
-        <LeadForm onSuccess={() => setIsModalOpen(false)} />
-      </DialogContent>
-    </Dialog>
   );
 }

@@ -11,8 +11,6 @@ import {
   CheckCircle2,
   Sun,
   Zap,
-  Users,
-  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button, Input, ProgressSteps } from "@/components/ui";

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ChevronDown, ChevronUp, Search, Filter, X, Phone, Mail, MapPin, Calendar, Clock } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, X, Phone, Mail, MapPin, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { Badge, Button } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import {
   BarChart,
   Bar,
@@ -436,7 +436,7 @@ export function WaitlistDashboard({
   const [pathFilter, setPathFilter] = useState<string>("all");
   const [analyticsCollapsed, setAnalyticsCollapsed] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  const [, setUpdatingStatus] = useState<string | null>(null);
 
   // Filters
   const filtered = useMemo(() => {
