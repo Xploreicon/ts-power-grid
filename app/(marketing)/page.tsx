@@ -22,8 +22,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogTrigger
+  DialogDescription
 } from "@/components/ui";
 import { Marquee } from "@/components/marketing/marquee";
 import { LeadForm } from "@/components/marketing/lead-form";
@@ -57,9 +56,9 @@ function MarketingPageContent() {
             <Button asChild variant="ghost" size="sm">
               <Link href="/sign-in">Sign in</Link>
             </Button>
-            <DialogTrigger asChild>
-              <Button variant="primary" size="sm">Book consultation</Button>
-            </DialogTrigger>
+            <Button asChild variant="primary" size="sm">
+              <Link href="/waitlist">Join waitlist</Link>
+            </Button>
           </div>
         }
         mobileActions={
@@ -67,9 +66,9 @@ function MarketingPageContent() {
             <Button asChild variant="secondary" className="w-full">
               <Link href="/sign-in">Sign in / Create account</Link>
             </Button>
-            <DialogTrigger asChild>
-              <Button variant="primary" className="w-full">Book consultation</Button>
-            </DialogTrigger>
+            <Button asChild variant="primary" className="w-full">
+              <Link href="/waitlist">Join waitlist</Link>
+            </Button>
           </div>
         }
       />
@@ -91,11 +90,9 @@ function MarketingPageContent() {
                   T&S Power Grid turns your Excess Solar capacity into a reliable monthly income. Join Nigeria&apos;s first peer-to-peer micro-utility network.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <DialogTrigger asChild>
-                    <Button size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-yellow-500/20">
-                      Become a host
-                    </Button>
-                  </DialogTrigger>
+                  <Button asChild size="lg" className="h-14 px-8 text-lg font-bold shadow-lg shadow-yellow-500/20">
+                    <Link href="/waitlist">Join the waitlist</Link>
+                  </Button>
                   <Button asChild variant="secondary" size="lg" className="h-14 px-8 text-lg font-bold">
                     <a href="#how-it-works">See how it works</a>
                   </Button>
@@ -242,11 +239,9 @@ function MarketingPageContent() {
                     ))}
                   </ul>
                 </div>
-                <DialogTrigger asChild>
-                  <Button className="w-full h-14 bg-yellow-500 text-navy-950 hover:bg-yellow-400 font-bold">
-                    Book Full Audit
-                  </Button>
-                </DialogTrigger>
+                <Button asChild className="w-full h-14 bg-yellow-500 text-navy-950 hover:bg-yellow-400 font-bold">
+                  <Link href="/waitlist">Join Waitlist</Link>
+                </Button>
               </FadeIn>
 
               <FadeIn delay={0.2} className="bg-yellow-500 rounded-[32px] p-8 lg:p-12 text-navy-950 flex flex-col justify-between relative overflow-hidden">
@@ -279,11 +274,9 @@ function MarketingPageContent() {
                     ))}
                   </ul>
                 </div>
-                <DialogTrigger asChild>
-                  <Button className="w-full h-14 bg-navy-900 text-white hover:bg-navy-950 font-bold">
-                    Check Compatibility
-                  </Button>
-                </DialogTrigger>
+                <Button asChild className="w-full h-14 bg-navy-900 text-white hover:bg-navy-950 font-bold">
+                  <Link href="/waitlist">Join Waitlist</Link>
+                </Button>
               </FadeIn>
             </div>
           </div>
@@ -351,9 +344,9 @@ function MarketingPageContent() {
                 <Badge variant="navy" className="bg-navy-800 text-yellow-500 border-navy-700">ENTERPRISE SOLUTIONS</Badge>
                 <h2 className="text-4xl lg:text-6xl font-display font-bold">For estates, FMCGs, and telcos</h2>
               </FadeIn>
-              <DialogTrigger asChild>
-                <Button size="lg" variant="primary">Partner with us</Button>
-              </DialogTrigger>
+              <Button asChild size="lg" variant="primary">
+                <Link href="/waitlist">Partner with us</Link>
+              </Button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -384,11 +377,9 @@ function MarketingPageContent() {
                 We are currently onboarding 50 pilot hosts across Lekki, Victoria Island, and Ikeja. Secure your spot in the energy revolution.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <DialogTrigger asChild>
-                   <Button size="lg" className="h-14 px-10 bg-navy-900 text-white hover:bg-navy-950 font-bold">
-                      Book consultation
-                   </Button>
-                 </DialogTrigger>
+                 <Button asChild size="lg" className="h-14 px-10 bg-navy-900 text-white hover:bg-navy-950 font-bold">
+                   <Link href="/waitlist">Join the waitlist</Link>
+                 </Button>
                  <Button size="lg" variant="secondary" className="h-14 px-10 border-navy-950 text-navy-950 hover:bg-navy-950/5 font-bold">
                     Download pitch deck
                  </Button>

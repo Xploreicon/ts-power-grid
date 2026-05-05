@@ -7,6 +7,7 @@ export type KycStatus = "pending" | "verified" | "rejected";
 
 export type PathInterest = "full_stack" | "upgrade" | "either";
 export type LeadStatus = "new" | "contacted" | "qualified" | "converted" | "rejected";
+export type WaitlistStatus = "pending" | "contacted" | "qualified" | "converted" | "rejected";
 
 export type InstallationType = "full_stack" | "upgrade";
 export type SiteStatus = "pending" | "installing" | "active" | "paused" | "decommissioned";
@@ -190,6 +191,36 @@ export interface Notification {
   created_at: Iso;
 }
 
+export interface WaitlistSubmission {
+  id: Uuid;
+  created_at: Iso;
+  status: WaitlistStatus;
+  full_name: string;
+  phone: string;
+  email: string | null;
+  whatsapp: string | null;
+  address: string;
+  lga: string;
+  property_type: string | null;
+  ownership: string | null;
+  neighbor_count: string | null;
+  rooftop_access: string | null;
+  path: string;
+  panel_capacity: string | null;
+  inverter_model: string | null;
+  battery_type: string | null;
+  system_age: string | null;
+  surplus_power: string | null;
+  monthly_power_spend: string;
+  primary_power_source: string | null;
+  payment_preference: string | null;
+  timeline: string | null;
+  target_price_per_kwh: string | null;
+  drone_assessment: string | null;
+  referral_source: string | null;
+  notes: string | null;
+}
+
 export interface OtpChallenge {
   id: Uuid;
   phone: string;
@@ -254,6 +285,11 @@ export interface Database {
         Insert: Insert<OtpChallenge, "phone" | "code_hash" | "expires_at">;
         Update: Partial<OtpChallenge>;
       };
+      waitlist_submissions: {
+        Row: WaitlistSubmission;
+        Insert: Insert<WaitlistSubmission, "full_name" | "phone" | "address" | "lga" | "path" | "monthly_power_spend">;
+        Update: Partial<WaitlistSubmission>;
+      };
     };
     Functions: {
       process_consumption: {
@@ -296,6 +332,7 @@ export interface Database {
       installment_status: InstallmentStatus;
       dispute_category: DisputeCategory;
       dispute_status: DisputeStatus;
+      waitlist_status: WaitlistStatus;
     };
   };
 }
