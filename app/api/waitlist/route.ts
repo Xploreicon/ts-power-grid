@@ -142,9 +142,18 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) {
-    console.error("[waitlist] insert failed:", error.message);
+    // Log the full Supabase error object for diagnosis (code, details, hint, message)
+    console.error("[waitlist] insert failed:", JSON.stringify(error, null, 2));
+    const friendlyMessage =
+      error.code === "23505"
+        ? "This phone number is already on the waitlist."
+        : error.code === "23502"
+          ? `Missing required field: ${error.details ?? "unknown"}`
+          : error.code === "42703"
+            ? `Unknown column in data: ${error.message}`
+            : `Submission failed — ${error.message ?? "please try again"}.`;
     return NextResponse.json(
-      { error: "Submission failed. Please try again." },
+      { error: friendlyMessage, code: error.code, hint: error.hint },
       { status: 500 },
     );
   }

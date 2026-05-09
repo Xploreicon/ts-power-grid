@@ -35,7 +35,7 @@ export function ProgressSteps({ steps, current, className }: ProgressStepsProps)
               <span
                 className={cn(
                   "text-[10px] font-bold uppercase tracking-wider hidden sm:block whitespace-nowrap",
-                  isActive ? "text-navy-900" : isDone ? "text-green-600" : "text-navy-400",
+                  isActive ? "text-white" : isDone ? "text-green-400" : "text-white/40",
                 )}
               >
                 {label}

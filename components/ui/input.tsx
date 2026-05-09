@@ -21,7 +21,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full space-y-1.5">
         {label && (
-          <label className="text-sm font-semibold text-navy-900 font-sans">
+          <label className="text-sm font-semibold text-navy-900 font-sans [.dark-form_&]:text-white/80">
             {label}
           </label>
         )}
@@ -58,7 +58,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error ? (
           <p className="text-xs font-medium text-red-500">{error}</p>
         ) : hint ? (
-          <p className="text-xs text-navy-400">{hint}</p>
+          <p className="text-xs text-navy-400 [.dark-form_&]:text-white/40">{hint}</p>
         ) : null}
       </div>
     );

@@ -172,7 +172,7 @@ function RadioPills({
   );
   return (
     <div>
-      <div className={cn("grid gap-2", columns === 3 ? "grid-cols-3" : columns === 1 ? "grid-cols-1" : "grid-cols-2")}>
+      <div className={cn("grid gap-2", columns === 3 ? "grid-cols-3" : columns === 1 ? "grid-cols-1" : columns === 4 ? "grid-cols-4" : "grid-cols-2")}>
         {normalized.map((opt) => (
           <button
             key={opt.value}
@@ -181,15 +181,15 @@ function RadioPills({
             className={cn(
               "px-3 py-2.5 rounded-[12px] text-sm font-medium border transition-all text-left",
               value === opt.value
-                ? "bg-navy-900 text-white border-navy-900"
-                : "bg-white text-navy-700 border-navy-100 hover:border-navy-300",
+                ? "bg-yellow-500 text-navy-950 border-yellow-500 font-semibold"
+                : "bg-navy-800 text-white/70 border-navy-600 hover:border-navy-400 hover:text-white",
             )}
           >
             {opt.label}
           </button>
         ))}
       </div>
-      {error && <p className="text-xs font-medium text-red-500 mt-1.5">{error}</p>}
+      {error && <p className="text-xs font-medium text-red-400 mt-1.5">{error}</p>}
     </div>
   );
 }
@@ -213,23 +213,23 @@ function SelectDropdown({
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "flex h-11 w-full rounded-[12px] border bg-white px-4 py-2 text-sm font-sans",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-900 transition-all",
+          "flex h-11 w-full rounded-[12px] border bg-navy-800 px-4 py-2 text-sm font-sans",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 transition-all",
           "appearance-none cursor-pointer",
-          !value ? "text-navy-300" : "text-navy-900",
-          error ? "border-red-500" : "border-navy-100",
+          !value ? "text-white/40" : "text-white",
+          error ? "border-red-500" : "border-navy-600",
         )}
       >
-        <option value="" disabled>
+        <option value="" disabled className="text-navy-400 bg-navy-900">
           {placeholder}
         </option>
         {options.map((opt) => (
-          <option key={opt} value={opt}>
+          <option key={opt} value={opt} className="bg-navy-900 text-white">
             {opt}
           </option>
         ))}
       </select>
-      {error && <p className="text-xs font-medium text-red-500">{error}</p>}
+      {error && <p className="text-xs font-medium text-red-400">{error}</p>}
     </div>
   );
 }
@@ -237,8 +237,8 @@ function SelectDropdown({
 function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: string }) {
   return (
     <div className="space-y-0.5">
-      <span className="block text-sm font-semibold text-navy-900 font-sans">{children}</span>
-      {hint && <span className="block text-xs text-navy-400">{hint}</span>}
+      <span className="block text-sm font-semibold text-white/80 font-sans">{children}</span>
+      {hint && <span className="block text-xs text-white/40">{hint}</span>}
     </div>
   );
 }
@@ -249,6 +249,7 @@ function FieldLabel({ children, hint }: { children: React.ReactNode; hint?: stri
 export default function WaitlistPage() {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
 
@@ -307,21 +308,26 @@ export default function WaitlistPage() {
 
   async function onSubmit(data: FormValues) {
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
+      const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Submission failed");
+        const errMsg = body.error ?? "Submission failed. Please try again.";
+        console.error("[waitlist] submission error:", body);
+        setSubmitError(errMsg);
+        return;
       }
       // Rough queue position — we don't expose the exact count, just a feel-good number
       setQueuePosition(Math.floor(Math.random() * 30) + 12);
       setSuccess(true);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      console.error("[waitlist] fetch error:", err);
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -390,7 +396,7 @@ export default function WaitlistPage() {
         {/* Progress */}
         <ProgressSteps steps={STEP_LABELS} current={step} className="mb-2" />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="dark-form space-y-8">
           {/* ── Step 1: About You ──────────────────────────────────── */}
           {step === 1 && (
             <section className="space-y-6 animate-in fade-in-0 slide-in-from-right-4 duration-300">
@@ -801,6 +807,13 @@ export default function WaitlistPage() {
               </Button>
             )}
           </div>
+
+          {/* Inline error message — shown below nav buttons */}
+          {submitError && (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
+              <p className="text-sm text-red-400 font-sans font-medium">{submitError}</p>
+            </div>
+          )}
 
           <p className="text-center text-xs text-white/30 font-sans pb-8">
             By submitting, you agree to our Terms of Service and Privacy Policy.
